@@ -6,7 +6,7 @@
   --line: #E6D3BA;
   --text: #3D2B1F;
   --text-dim: #8B6F52;
-  --cyan: #E8746A;
+  --cyan: #F2946B;
   --green: #8A9A5B;
   --amber: #E0912E;
 
@@ -332,7 +332,7 @@ a{ color: inherit; }
   background: var(--cyan);
   color: #FFF8F1;
 }
-.btn-primary:hover{ background: #D15A50; }
+.btn-primary:hover{ background: #DE7B4F; }
 .btn-ghost{
   background: transparent;
   color: var(--text);
