@@ -1,12 +1,12 @@
 :root{
-  --bg: #EDF2FA;
+  --bg: #E7EEF9;
   --panel: #FFFFFF;
-  --panel-2: #DCE7F7;
-  --line: #AFC4E0;
-  --text: #14213D;
-  --text-dim: #47607F;
-  --cyan: #1458B8;
-  --green: #2F8A7A;
+  --panel-2: #C9D9F0;
+  --line: #8FA8CC;
+  --text: #0E1B33;
+  --text-dim: #3C5271;
+  --cyan: #0B4DA6;
+  --green: #24796B;
   --amber: #D98C3D;
 
   --font-display: "Space Grotesk", system-ui, sans-serif;
