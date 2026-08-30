@@ -1,12 +1,12 @@
 :root{
-  --bg: #EEF3F9;
+  --bg: #EDF2FA;
   --panel: #FFFFFF;
-  --panel-2: #E2EAF4;
-  --line: #C7D6E6;
-  --text: #1B2A3D;
-  --text-dim: #55697E;
-  --cyan: #2F6FA6;
-  --green: #4E8B8B;
+  --panel-2: #DCE7F7;
+  --line: #AFC4E0;
+  --text: #14213D;
+  --text-dim: #47607F;
+  --cyan: #1458B8;
+  --green: #2F8A7A;
   --amber: #D98C3D;
 
   --font-display: "Space Grotesk", system-ui, sans-serif;
@@ -15,9 +15,6 @@
 
   --radius: 10px;
   --max: 1120px;
-
-  /* alto aproximado del header sticky (header-bar + header-meta),
-     usado para el offset del sidebar sticky en páginas de actividad */
   --header-h: 100px;
 }
 
@@ -908,6 +905,102 @@ a{ color: inherit; }
   color: var(--text-dim);
   font-size: 0.84rem;
   margin: 0 0 16px;
+}
+
+/* =========================================================
+   TABLAS DE DATOS (usadas en páginas de actividad)
+   ========================================================= */
+.table-wrap{
+  max-width: 74ch;
+  margin: 0 0 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.data-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.data-table th,
+.data-table td{
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.data-table thead th{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.data-table tbody th,
+.data-table tbody td:first-child{
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.data-table tbody td{
+  color: var(--text-dim);
+}
+
+.data-table tbody tr:last-child td,
+.data-table tbody tr:last-child th{
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover{
+  background: var(--panel-2);
+}
+
+/* =========================================================
+   FIGURAS (capturas de evidencia con pie de imagen)
+   ========================================================= */
+.figure{
+  max-width: 74ch;
+  margin: 0 0 28px;
+}
+
+.figure img{
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.figure figcaption{
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.figure figcaption code{
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+@media (max-width: 700px){
+  .data-table th,
+  .data-table td{ padding: 10px 12px; }
 }
 
 /* =========================================================
