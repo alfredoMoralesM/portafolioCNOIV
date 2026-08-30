@@ -1,670 +1,1109 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Actividad 04 - Una página demasiado convincente</title>
-<meta name="description" content="Parcial 1, Actividad 4: simulación de phishing con Credential Harvester (Social-Engineer Toolkit), en el contexto de seguridad informática.">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="../../css/styles.css">
-</head>
-<body>
-
-<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
-
-<!-- ===================== HEADER ===================== -->
-<header class="site-header" id="inicio">
-  <div class="header-bar">
-    <div class="brand">
-      <div class="brand-text">
-        <!-- EDITAR: nombre y alias del estudiante -->
-        <span class="brand-name">Christian Alfredo Morales Meza </span>
-        <span class="brand-alias">// Alfred</span>
-        <span class="brand-course">CNO IV — Seguridad Informática</span>
-      </div>
-    </div>
-
-    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
-      <span></span><span></span><span></span>
-    </button>
-
-    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
-      <ul>
-        <li><a href="/portafolioCNOIV/index.html" class="active">Inicio</a></li>
-        <li class="has-dropdown">
-          <span class="dropdown-toggle" aria-haspopup="true">
-            Actividades <span class="chev" aria-hidden="true">▾</span>
-          </span>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
-            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 2 <em>· próximamente</em></span></li>
-            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
-          </ul>
-        </li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos <em>· próximamente</em></span></li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados <em>· próximamente</em></span></li>
-        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
-      </ul>
-    </nav>
-  </div>
-
-  <div class="header-meta">
-    <div class="header-meta-inner">
-      <!-- EDITAR: institución y periodo -->
-      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
-      <span class="dot" aria-hidden="true">•</span>
-      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
-      <span class="dot" aria-hidden="true">•</span>
-      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
-    </div>
-  </div>
-</header>
-
-<main id="contenido">
-
-  <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
-  <section class="activity-hero">
-    <span class="section-index">Parcial 1 · Actividad 04</span>
-    <h1>Una página demasiado convincente</h1>
-    <p class="hero-lede">
-      Simulación de ingeniería social en un entorno de laboratorio aislado, utilizando el módulo
-      <code>Credential Harvester</code> de Social-Engineer Toolkit (SET) para comprender, desde el lado
-      defensivo, cómo funciona una campaña de phishing orientada a la captura de credenciales.
-    </p>
-  </section>
-
-  <!-- ===================== CONTENIDO + SIDEBAR FIJA ===================== -->
-  <div class="activity-layout">
-
-    <div class="activity-main">
-
-      <!-- ===================== 01. OBJETIVO DE LA ACTIVIDAD ===================== -->
-      <section class="section" id="objetivo">
-        <div class="section-head">
-          <span class="section-index">01</span>
-          <h2>Objetivo de la actividad</h2>
-        </div>
-        <p class="body-copy">
-          El objetivo de esta actividad es implementar y analizar, dentro de un entorno de laboratorio
-          controlado, una simulación de ingeniería social apoyada en Social-Engineer Toolkit (SET). A través
-          de una página web ficticia construida específicamente para esta práctica, se busca comprender de
-          forma práctica cómo funciona una técnica de captura de información de tipo phishing, y reconocer
-          los elementos técnicos y visuales que permiten identificar un intento de este tipo antes de caer
-          en él.
-        </p>
-      </section>
-
-      <!-- ===================== 02. OBJETIVOS ESPECÍFICOS ===================== -->
-      <section class="section" id="objetivos-especificos">
-        <div class="section-head">
-          <span class="section-index">02</span>
-          <h2>Objetivos específicos</h2>
-        </div>
-        <ul class="concept-list">
-          <li>Configurar un escenario básico de ingeniería social utilizando Social-Engineer Toolkit (SET) sobre una red interna y aislada.</li>
-          <li>Implementar una página web ficticia de inicio de sesión mediante el módulo Credential Harvester, respetando los límites éticos y técnicos del laboratorio.</li>
-          <li>Analizar el proceso mediante el cual la información introducida en un formulario web es transmitida por el navegador y registrada por el servidor del atacante.</li>
-          <li>Identificar los indicadores técnicos y visuales que permiten reconocer una página potencialmente fraudulenta.</li>
-          <li>Proponer controles de seguridad orientados a prevenir o reducir el impacto de ataques de phishing en un entorno organizacional real.</li>
-        </ul>
-      </section>
-
-      <!-- ===================== 03. DESCRIPCIÓN DEL ESCENARIO ===================== -->
-      <section class="section" id="escenario">
-        <div class="section-head">
-          <span class="section-index">03</span>
-          <h2>Descripción del escenario</h2>
-        </div>
-        <p class="body-copy">
-          Para darle contexto a la práctica, planteé el siguiente escenario ficticio: el área de seguridad
-          informática de una organización recibe reportes de varios empleados que aseguran haber recibido un
-          mensaje relacionado con una supuesta actualización de sus credenciales. El mensaje contiene un
-          enlace que dirige a un portal aparentemente institucional, el cual incluye un logotipo, campos de
-          usuario y contraseña, y una advertencia que indica: «Su sesión ha expirado. Inicie sesión nuevamente
-          para continuar».
-        </p>
-        <p class="body-copy">
-          A primera vista, la página no presenta elementos que llamen la atención de un usuario común; sin
-          embargo, el portal no pertenece a la organización real, sino que es un montaje de laboratorio que
-          construí con fines exclusivamente académicos, alojado de forma local.
-        </p>
-      </section>
-
-      <!-- ===================== 04. ¿QUÉ ES UN CREDENTIAL HARVESTER? ===================== -->
-      <section class="section" id="credential-harvester">
-        <div class="section-head">
-          <span class="section-index">04</span>
-          <h2>¿Qué es un Credential Harvester y cuál es su función dentro de una campaña de phishing?</h2>
-        </div>
-        <p class="body-copy">
-          Un Credential Harvester («recolector de credenciales») es un módulo de Social-Engineer Toolkit que
-          automatiza la creación de una página web falsa con formularios de inicio de sesión. Su función es
-          capturar y almacenar la información que una víctima introduce en dichos campos —usuario y
-          contraseña— en el momento en que la envía, sin que exista de por medio ningún proceso real de
-          autenticación.
-        </p>
-        <p class="body-copy">
-          Dentro de una campaña de phishing, el Credential Harvester representa la etapa de «captura»:
-          después de que la víctima es engañada mediante un pretexto —un correo, mensaje o enlace que simula
-          una notificación legítima, como una sesión expirada—, es dirigida a esta página falsa. Al ingresar
-          sus credenciales, estas quedan registradas en el equipo del atacante y, habitualmente, la víctima es
-          redirigida a la página legítima o a un mensaje de error, con el fin de no despertar sospechas.
-        </p>
-        <p class="body-copy">
-          Para esta práctica, diseñé el formulario HTML que utilicé como página ficticia dentro del Credential
-          Harvester. A continuación, se muestra el código completo de ese formulario.
-        </p>
-        <div class="code-block">
-          <div class="code-block-bar">
-            <span>index.html</span>
-          </div>
-          <pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang="es"&gt;
-&lt;head&gt;
-  &lt;meta charset="UTF-8"&gt;
-  &lt;title&gt;Portal Interno - Sistema de Autenticación (Laboratorio)&lt;/title&gt;
-  &lt;style&gt;
-    body { font-family: Arial, sans-serif; background:#eef1f5; display:flex;
-           justify-content:center; align-items:center; height:100vh; margin:0; }
-    .box { background:#fff; padding:40px; border-radius:8px;
-           box-shadow:0 2px 10px rgba(0,0,0,.15); width:320px; text-align:center; }
-    .box h2 { color:#2c3e50; margin-bottom:5px; }
-    .box p.sub { color:#7f8c8d; font-size:13px; margin-top:0; }
-    .warning { background:#fdecea; color:#c0392b; padding:10px;
-               border-radius:4px; font-size:13px; margin-bottom:20px; }
-    input { width:90%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
-    button { width:96%; padding:10px; background:#2c3e50; color:#fff;
-             border:none; border-radius:4px; cursor:pointer; }
-  &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;div class="box"&gt;
-    &lt;h2&gt;SIST-LAB Corp&lt;/h2&gt;
-    &lt;p class="sub"&gt;Portal ficticio de autenticación (uso académico)&lt;/p&gt;
-    &lt;div class="warning"&gt;Su sesión ha expirado. Inicie sesión nuevamente para continuar.&lt;/div&gt;
-    &lt;form action="post.php" method="POST"&gt;
-      &lt;input type="text" name="username" placeholder="Usuario"&gt;
-      &lt;input type="password" name="password" placeholder="Contraseña"&gt;
-      &lt;button type="submit"&gt;Iniciar sesión&lt;/button&gt;
-    &lt;/form&gt;
-  &lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-        </div>
-        <p class="body-copy">
-          Este HTML fue el único archivo (<code>index.html</code>) que utilicé como base para el módulo
-          Custom Import de SET, tal como se describe en la sección de configuración del laboratorio.
-        </p>
-      </section>
-
-      <!-- ===================== 05. CONFIGURACIÓN DEL LABORATORIO ===================== -->
-      <section class="section" id="configuracion-laboratorio">
-        <div class="section-head">
-          <span class="section-index">05</span>
-          <h2>Configuración del laboratorio</h2>
-        </div>
-        <p class="body-copy">
-          Para llevar a cabo esta práctica configuré un entorno de laboratorio aislado, compuesto por dos
-          máquinas virtuales dentro de VirtualBox: una con Kali Linux, que utilicé como equipo atacante, y
-          otra con Windows 7, que utilicé como equipo víctima. La tabla siguiente resume el entorno y las
-          herramientas empleadas.
-        </p>
-
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr><th>Elemento</th><th>Detalle</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Sistema operativo atacante</td><td>Kali Linux (máquina virtual)</td></tr>
-              <tr><td>Herramienta principal</td><td>Social-Engineer Toolkit (SET) — módulo Credential Harvester Attack Method</td></tr>
-              <tr><td>Modo de red</td><td>Red interna (Internal Network) entre dos máquinas virtuales, sin salida a Internet</td></tr>
-              <tr><td>Página utilizada</td><td>Página ficticia diseñada para el laboratorio (Custom Import), sin relación con servicios reales</td></tr>
-              <tr><td>IP del servidor local (Kali / atacante)</td><td>192.168.50.10 (asignada manualmente en eth0, ya que la Red Interna no cuenta con DHCP)</td></tr>
-              <tr><td>Máquina "víctima"</td><td>Windows 7 (máquina virtual), IP 192.168.50.20, misma red interna</td></tr>
-              <tr><td>Fecha de ejecución</td><td>30 de agosto de 2026</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p class="body-copy">
-          <strong>Nota sobre la configuración de red:</strong> al utilizar el modo Red Interna (Internal
-          Network) del hipervisor, ninguna de las dos máquinas virtuales recibe una dirección IP de forma
-          automática, ya que este modo no incluye un servidor DHCP. Por esa razón tuve que asignar
-          manualmente una dirección IP a cada una de las máquinas, dentro del mismo segmento de red, para que
-          pudieran comunicarse entre sí sin salir hacia Internet.
-        </p>
-      </section>
-
-      <!-- ===================== 06. RESTRICCIONES APLICADAS ===================== -->
-      <section class="section" id="restricciones">
-        <div class="section-head">
-          <span class="section-index">06</span>
-          <h2>Restricciones aplicadas durante la práctica (cumplimiento obligatorio)</h2>
-        </div>
-        <p class="body-copy">
-          Antes de iniciar la configuración técnica, se definieron un conjunto de restricciones con el fin de
-          mantener la práctica dentro de un marco estrictamente académico y controlado:
-        </p>
-        <ul class="concept-list">
-          <li>No utilicé páginas pertenecientes a servicios reales.</li>
-          <li>No cloné portales de instituciones o empresas; en su lugar, usé la opción Custom Import con una página propia.</li>
-          <li>No empleé credenciales personales, únicamente datos de prueba inventados.</li>
-          <li>No solicité datos a personas ajenas al laboratorio.</li>
-          <li>El servidor nunca fue publicado hacia Internet; se mantuvo en una red interna de tipo host-only.</li>
-          <li>No utilicé dominios externos ni técnicas de suplantación DNS.</li>
-          <li>No instalé payloads ni ejecuté código malicioso de ningún tipo.</li>
-        </ul>
-
-        <p class="body-copy">
-          El primer paso técnico consistió en configurar la red de ambas máquinas virtuales, la de Linux y la
-          de Windows, en modo Red Interna, con lo que cumplí la restricción de no publicar el servidor hacia
-          Internet. Utilicé el nombre de red por defecto «intnet» en las dos máquinas, ya que ambos
-          adaptadores deben compartir el mismo nombre de red interna para poder verse entre sí.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig01.png" alt="Configuración de la red interna intnet en VirtualBox para la máquina virtual Windows 7" loading="lazy">
-          <figcaption>Figura 1. Configuración de la red interna «intnet» en VirtualBox para la máquina virtual Windows 7.</figcaption>
-        </figure>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig02.png" alt="Configuración de la red interna intnet en VirtualBox para la máquina virtual Kali Linux" loading="lazy">
-          <figcaption>Figura 2. Configuración de la misma red interna «intnet» en VirtualBox para la máquina virtual Kali Linux.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Con la red interna ya configurada en el hipervisor, tuve que asignar manualmente una dirección IP a
-          la interfaz de red de Kali Linux mediante el comando <code>ip addr add</code>, y configurar después
-          una IP estática dentro del mismo segmento en la máquina virtual con Windows 7, de manera que ambos
-          equipos pudieran comunicarse entre sí.
-        </p>
-
-        <p class="body-copy">En Kali, asigné la IP manualmente con los siguientes comandos:</p>
-        <div class="code-block">
-          <div class="code-block-bar"><span>bash</span></div>
-          <pre><code>sudo ip addr add 192.168.50.10/24 dev eth0
-sudo ip link set eth0 up</code></pre>
-        </div>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig03.png" alt="Asignación manual de la dirección IP 192.168.50.10/24 sobre la interfaz eth0 en Kali Linux" loading="lazy">
-          <figcaption>Figura 3. Asignación manual de la dirección IP 192.168.50.10/24 sobre la interfaz eth0 en Kali Linux.</figcaption>
-        </figure>
-
-        <p class="body-copy">Después verifiqué que la IP hubiera quedado correctamente asignada con el comando:</p>
-        <div class="code-block">
-          <div class="code-block-bar"><span>bash</span></div>
-          <pre><code>ip a</code></pre>
-        </div>
-
-        <p class="body-copy">
-          Con esto pude confirmar que la interfaz eth0 mostraba correctamente <code>inet 192.168.50.10/24</code>,
-          lo que significaba que la configuración de red del equipo atacante había quedado lista.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig04.png" alt="Verificación de la dirección IP asignada en Kali Linux mediante el comando ip a" loading="lazy">
-          <figcaption>Figura 4. Verificación de la dirección IP asignada en Kali Linux mediante el comando <code>ip a</code>.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Del lado de Windows 7, asigné la IP correspondiente dentro del mismo segmento 192.168.50.x
-          siguiendo la ruta Panel de control → Redes e Internet → Centro de redes y recursos compartidos →
-          clic en el adaptador de red → Propiedades.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig05.png" alt="Acceso al Centro de redes y recursos compartidos en Windows 7" loading="lazy">
-          <figcaption>Figura 5. Acceso al Centro de redes y recursos compartidos en Windows 7 para editar las propiedades del adaptador.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Dentro de las propiedades, seleccioné «Protocolo de Internet versión 4 (TCP/IPv4)» y elegí la
-          opción «Usar la siguiente dirección IP», donde configuré los siguientes valores: dirección IP
-          192.168.50.20, máscara de subred 255.255.255.0 y puerta de enlace vacía, ya que esta máquina no
-          necesitaba salir a ninguna otra red.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig06.png" alt="Configuración de la dirección IP estática 192.168.50.20 en el adaptador de red de Windows 7" loading="lazy">
-          <figcaption>Figura 6. Configuración de la dirección IP estática 192.168.50.20 en el adaptador de red de Windows 7.</figcaption>
-        </figure>
-      </section>
-
-      <!-- ===================== 07. EVIDENCIAS Y DESCRIPCIÓN DEL FUNCIONAMIENTO ===================== -->
-      <section class="section" id="evidencias">
-        <div class="section-head">
-          <span class="section-index">07</span>
-          <h2>Evidencias y descripción del funcionamiento</h2>
-        </div>
-
-        <h3>Inicio de SET y acceso al módulo Credential Harvester</h3>
-        <p class="body-copy">
-          Con la red ya funcionando entre ambas máquinas, abrí una terminal en Kali Linux y ejecuté
-          Social-Engineer Toolkit con el siguiente comando:
-        </p>
-        <div class="code-block">
-          <div class="code-block-bar"><span>bash</span></div>
-          <pre><code>sudo setoolkit</code></pre>
-        </div>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig07.png" alt="Inicio de Social-Engineer Toolkit desde una terminal de Kali Linux" loading="lazy">
-          <figcaption>Figura 7. Inicio de Social-Engineer Toolkit desde una terminal de Kali Linux mediante el comando <code>setoolkit</code>.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Acepté los términos de uso de la herramienta y, a continuación, se desplegó el menú principal de
-          SET, desde donde comencé a navegar hacia el módulo que necesitaba.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig08.png" alt="Menú principal de Social-Engineer Toolkit tras aceptar los términos de uso" loading="lazy">
-          <figcaption>Figura 8. Menú principal de Social-Engineer Toolkit tras aceptar los términos de uso.</figcaption>
-        </figure>
-
-        <p class="body-copy">Dentro del menú principal seguí la siguiente ruta de navegación:</p>
-        <ul class="concept-list">
-          <li>1) Social-Engineering Attacks</li>
-          <li>2) Website Attack Vectors</li>
-          <li>3) Credential Harvester Attack Method</li>
-        </ul>
-        <p class="body-copy">
-          Al llegar a este punto, SET me presentó tres opciones para definir el origen de la página que
-          quería utilizar: 1) Web Templates, que ofrece plantillas predefinidas por la propia herramienta; 2)
-          Site Cloner, que clona una URL real ya existente; y 3) Custom Import, que permite importar un sitio
-          propio. Elegí esta última opción porque era la única que cumplía la restricción de trabajar
-          únicamente con una página diseñada por mí para el laboratorio, sin clonar ningún portal real.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig09.png" alt="Submenú Website Attack Vectors con selección de Custom Import" loading="lazy">
-          <figcaption>Figura 9. Submenú Website Attack Vectors: descripción de las tres opciones disponibles y selección de Custom Import.</figcaption>
-        </figure>
-
-        <h3>Configuración del módulo y puesta en marcha del servidor</h3>
-        <p class="body-copy">
-          Una vez dentro de Custom Import, SET me pidió dos datos: la dirección IP a la que debían
-          reenviarse los formularios (POST back) y la ruta donde tenía guardada mi página. En el primer campo
-          indiqué la IP de mi propia máquina Kali, 192.168.50.10 —nunca una IP externa—, y a la página
-          ficticia le asigné además una URL simbólica, <code>http://sistlab.local</code>, únicamente como
-          referencia dentro del laboratorio.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig10.png" alt="Configuración del módulo Credential Harvester con IP de retorno y ruta del sitio importado" loading="lazy">
-          <figcaption>Figura 10. Configuración del módulo Credential Harvester: IP de retorno (192.168.50.10), ruta del sitio importado y URL asignada al portal ficticio.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Antes de continuar, verifiqué en el gestor de archivos de Kali que el archivo <code>index.html</code>
-          con el formulario que había programado sí se encontrara en la ruta que le indiqué a SET,
-          <code>/home/kali/Documents/</code>.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig11.png" alt="Verificación del archivo index.html dentro de la carpeta Documents antes de importarlo en SET" loading="lazy">
-          <figcaption>Figura 11. Verificación del archivo index.html dentro de la carpeta /home/kali/Documents/ antes de importarlo en SET.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Con la ruta y la IP configuradas, SET copió el archivo hacia su propio directorio de trabajo, montó
-          un servidor web local sobre Apache en el puerto 80 y quedó a la espera de recibir las credenciales
-          que se enviaran desde el formulario.
-        </p>
-        <p class="body-copy">
-          Durante la primera ejecución me encontré con un inconveniente: el puerto 80 ya estaba siendo
-          utilizado por un proceso anterior, por lo que SET no pudo levantar el servidor. Para resolverlo,
-          identifiqué el proceso que estaba ocupando el puerto con el comando <code>ss -tulpn | grep :80</code>,
-          localicé su PID —en este caso, 9026— y lo terminé con <code>sudo kill -9 9026</code>.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig12.png" alt="Identificación y finalización del proceso que ocupaba el puerto 80" loading="lazy">
-          <figcaption>Figura 12. Identificación del proceso que ocupaba el puerto 80 (PID 9026) y finalización del proceso con sudo kill -9.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          Una vez liberado el puerto, volví a iniciar el módulo Credential Harvester y repetí la
-          configuración: la ruta hacia mi <code>index.html</code>, la confirmación de que el archivo había
-          sido encontrado y la URL asignada al portal ficticio, esta vez sin ningún conflicto de puerto.
-        </p>
-
-        <h3>Simulación del acceso de la «víctima»</h3>
-        <p class="body-copy">
-          Con el servidor ya escuchando en el puerto 80, pasé a la máquina virtual con Windows 7 —que hacía
-          el papel de equipo víctima— y abrí el navegador para visitar la dirección
-          <code>http://192.168.50.10</code>, es decir, la IP de mi máquina Kali.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig14.png" alt="Acceso desde el navegador de la máquina víctima Windows 7 a la dirección IP del atacante" loading="lazy">
-          <figcaption>Figura 14. Acceso desde el navegador de la máquina «víctima» (Windows 7) a la dirección http://192.168.50.10.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          En el navegador apareció mi página ficticia, con el mensaje de sesión expirada tal como la había
-          diseñado. Para simular el comportamiento de un usuario engañado, escribí credenciales completamente
-          inventadas —usuario <code>prueba01</code> y contraseña <code>Lab2026#</code>— y presioné el botón
-          «Iniciar sesión».
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig15.png" alt="Página ficticia de autenticación SIST-LAB Corp con credenciales de prueba ingresadas" loading="lazy">
-          <figcaption>Figura 15. Página ficticia de autenticación «SIST-LAB Corp» mostrando las credenciales de prueba ingresadas antes de enviarlas.</figcaption>
-        </figure>
-
-        <p class="body-copy">
-          En cuanto envié el formulario, regresé a la terminal donde tenía corriendo SET y pude ver, en
-          tiempo real, cómo la herramienta reportaba la petición HTTP recibida y extraía de ella los valores
-          de los campos <code>username</code> y <code>password</code> que acababa de escribir en el
-          navegador.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig16.png" alt="Registro en tiempo real de la petición HTTP recibida y de las credenciales capturadas" loading="lazy">
-          <figcaption>Figura 16. Registro en tiempo real de la petición HTTP recibida y de las credenciales capturadas: username=prueba01, password=Lab2026#.</figcaption>
-        </figure>
-
-        <h3>Revisión de la evidencia capturada</h3>
-        <p class="body-copy">
-          Para finalizar la captura, regresé a la terminal donde corría SET y presioné Ctrl + C para detener
-          el módulo Credential Harvester. Al hacerlo, la herramienta generó un archivo de registro con la
-          sesión, el cual pude consultar con el comando <code>cat</code> y la ruta que la propia SET indicó al
-          terminar el proceso.
-        </p>
-        <div class="code-block">
-          <div class="code-block-bar"><span>bash</span></div>
-          <pre><code>sudo cat /usr/share/set/src/logs/harvester.log</code></pre>
-        </div>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig17.png" alt="Revisión del archivo harvester.log generado por SET con las credenciales de prueba capturadas" loading="lazy">
-          <figcaption>Figura 17. Revisión del archivo harvester.log generado por SET, donde quedaron registradas las credenciales de prueba capturadas.</figcaption>
-        </figure>
-      </section>
-
-      <!-- ===================== 08. EXPLICACIÓN DEL FLUJO DE CAPTURA ===================== -->
-      <section class="section" id="flujo-captura">
-        <div class="section-head">
-          <span class="section-index">08</span>
-          <h2>Explicación del flujo de captura de información</h2>
-        </div>
-        <p class="body-copy">
-          A partir de lo que observé durante la práctica, puedo resumir el flujo técnico del ataque simulado
-          en los siguientes pasos:
-        </p>
-        <ul class="concept-list">
-          <li>SET, a través del módulo Credential Harvester, levanta un servidor web local (Apache) que aloja la página ficticia que importé.</li>
-          <li>El navegador de la «víctima» accede a la IP del servidor y visualiza el formulario de inicio de sesión tal como lo diseñé.</li>
-          <li>Al completar los campos de usuario y contraseña y presionar el botón de ingreso, el formulario envía una petición HTTP de tipo POST hacia el servidor.</li>
-          <li>El script del Credential Harvester intercepta los parámetros enviados en esa petición (username, password) antes de que exista cualquier proceso real de autenticación.</li>
-          <li>Los datos capturados se registran en un archivo de texto en el servidor y, al mismo tiempo, se muestran en tiempo real en la terminal donde corre SET.</li>
-          <li>Finalmente, la víctima suele ser redirigida a otra página —por ejemplo, la legítima o un mensaje de error— con el fin de reducir la sospecha de que algo salió mal.</li>
-        </ul>
-        <p class="body-copy">
-          En mi caso particular, como la URL ficticia <code>http://sistlab.local</code> no correspondía a
-          ningún dominio real ni estaba registrada en un servidor DNS, al intentar acceder a ella el navegador
-          mostró un mensaje de error de tipo «servidor no encontrado». En un escenario real, un atacante
-          sustituiría este paso por una redirección funcional hacia el sitio legítimo, precisamente para no
-          levantar sospechas en la víctima.
-        </p>
-
-        <figure class="figure">
-          <img src="/portafolioCNOIV/actividades/images/act04-fig18.png" alt="Mensaje de error mostrado tras el envío del formulario al no existir resolución DNS real" loading="lazy">
-          <figcaption>Figura 18. Mensaje de error mostrado tras el envío del formulario, al no existir una resolución DNS real para el dominio ficticio sistlab.local.</figcaption>
-        </figure>
-      </section>
-
-      <!-- ===================== 09. INDICADORES TÉCNICOS Y VISUALES ===================== -->
-      <section class="section" id="indicadores">
-        <div class="section-head">
-          <span class="section-index">09</span>
-          <h2>Indicadores técnicos y visuales de una página fraudulenta</h2>
-        </div>
-        <p class="body-copy">
-          A partir de lo observado durante la práctica, identifiqué los siguientes indicadores como señales
-          típicas de una página fraudulenta:
-        </p>
-        <ul class="concept-list">
-          <li>URL o dominio que no corresponde al dominio oficial de la organización, o uso de una dirección IP en lugar de un nombre de dominio.</li>
-          <li>Ausencia de un certificado SSL válido o del candado de seguridad en la barra del navegador.</li>
-          <li>Mensajes de urgencia genéricos, como «su sesión ha expirado» o «actualice sus credenciales de inmediato», diseñados para presionar una reacción rápida.</li>
-          <li>Diseño visual ligeramente distinto al oficial: logotipos de baja calidad, tipografías o colores inconsistentes con la identidad real de la organización.</li>
-          <li>Un formulario que no realiza validaciones reales ni redirige a un panel funcional después del envío.</li>
-          <li>Un enlace recibido por un canal no oficial, como un correo no corporativo o un mensaje inesperado.</li>
-        </ul>
-      </section>
-
-      <!-- ===================== 10. CONTROLES DE SEGURIDAD PROPUESTOS ===================== -->
-      <section class="section" id="controles">
-        <div class="section-head">
-          <span class="section-index">10</span>
-          <h2>Controles de seguridad propuestos</h2>
-        </div>
-        <p class="body-copy">
-          Con base en lo analizado durante la práctica, propongo los siguientes controles para prevenir o
-          reducir el impacto de ataques de phishing en una organización real:
-        </p>
-        <ul class="concept-list">
-          <li><strong>Capacitación y concientización periódica del personal: </strong>para que sepan identificar correos y enlaces sospechosos antes de interactuar con ellos.</li>
-          <li><strong>Autenticación multifactor (MFA): </strong>de modo que una sola credencial capturada no sea suficiente para acceder a los sistemas de la organización.</li>
-          <li><strong>Filtrado de correo electrónico y soluciones anti-phishing a nivel de gateway: </strong>que detecten y bloqueen mensajes sospechosos antes de que lleguen al usuario final.</li>
-          <li><strong>Registros SPF, DKIM y DMARC: </strong>configurados correctamente en el dominio de correo para reducir la suplantación de identidad del remitente.</li>
-          <li><strong>Listas de reputación de URLs: </strong>y bloqueo de dominios recién registrados o con comportamiento sospechoso.</li>
-          <li><strong>Simulacros periódicos de phishing controlados: </strong>similares al de esta práctica, para medir y reforzar la respuesta del personal ante intentos reales.</li>
-          <li><strong>Monitoreo de accesos anómalos: </strong>con alertas ante inicios de sesión desde ubicaciones o dispositivos inusuales.</li>
-          <li><strong>Políticas claras de reporte inmediato: </strong>ante la sospecha de un correo o página fraudulenta, con un canal simple para que cualquier empleado pueda notificarlo.</li>
-        </ul>
-      </section>
-
-      <!-- ===================== 11. CONCLUSIÓN ===================== -->
-      <section class="section" id="conclusion">
-        <div class="section-head">
-          <span class="section-index">11</span>
-          <h2>Conclusión</h2>
-        </div>
-        <p class="body-copy">
-          Esta práctica me permitió comprobar, de forma muy concreta, qué tan sencillo puede resultar montar
-          un escenario de phishing funcional cuando se cuenta con las herramientas adecuadas.
-        </p>
-        <p class="body-copy">
-          También me quedó claro que, desde el punto de vista del atacante, la etapa de «captura» que realiza
-          el Credential Harvester es solo el último eslabón de una cadena que comienza mucho antes, con el
-          pretexto que convence a la víctima de hacer clic en el enlace. Por eso considero que los controles
-          más efectivos no son únicamente los técnicos —como MFA, filtrado de correo o registros
-          SPF/DKIM/DMARC—, sino también los que fortalecen el criterio del usuario final, como la capacitación
-          periódica y los simulacros controlados.
-        </p>
-        <p class="body-copy">
-          En conjunto, el laboratorio cumplió su propósito: pude observar de primera mano el funcionamiento
-          interno de un ataque de phishing basado en captura de credenciales, sin poner en riesgo información
-          real ni salir en ningún momento del entorno aislado que configuré para la práctica.
-        </p>
-      </section>
-
-      <!-- ===================== 12. REFERENCIAS ===================== -->
-      <section class="section" id="referencias">
-        <div class="section-head">
-          <span class="section-index">12</span>
-          <h2>Referencias</h2>
-        </div>
-        <ul class="concept-list">
-          <li>TrustedSec. (s. f.). <em>Social-Engineer Toolkit (SET)</em> [Repositorio de software]. GitHub. <a href="https://github.com/trustedsec/social-engineer-toolkit" target="_blank" rel="noopener">https://github.com/trustedsec/social-engineer-toolkit</a></li>
-          <li>INCIBE. (s. f.). <em>Phishing: conoce a fondo esta técnica de fraude.</em> Oficina de Seguridad del Internauta. <a href="https://www.incibe.es/aprendeciberseguridad/phishing" target="_blank" rel="noopener">https://www.incibe.es/aprendeciberseguridad/phishing</a></li>
-          <li>INCIBE. (s. f.). <em>Cómo evitar ser víctima de phishing.</em> <a href="https://www.incibe.es/node/485661" target="_blank" rel="noopener">https://www.incibe.es/node/485661</a></li>
-          <li>Kali Linux Documentation. (s. f.). <em>Social Engineering Toolkit (SET).</em> <a href="https://www.kali.org/tools/set/" target="_blank" rel="noopener">https://www.kali.org/tools/set/</a></li>
-        </ul>
-      </section>
-
-    </div>
-
-    <!-- ===================== SIDEBAR FIJA: DATOS + DESCARGA ===================== -->
-    <aside class="activity-sidebar">
-      <div class="sidebar-card">
-        <h3>Datos de la actividad</h3>
-        <dl>
-          <div class="sidebar-meta-item">
-            <dt>Fecha</dt>
-            <dd>31/08/2026</dd>
-          </div>
-          <div class="sidebar-meta-item">
-            <dt>Tecnologías</dt>
-            <dd>Kali Linux, Social-Engineer Toolkit (SET), Apache, VirtualBox</dd>
-          </div>
-          <div class="sidebar-meta-item">
-            <dt>Entregable</dt>
-            <dd>Reporte en PDF + evidencia fotográfica</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="sidebar-card sidebar-download">
-        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
-        <h3>PDF de la actividad</h3>
-        <p>Reporte con objetivo, escenario, configuración del laboratorio, evidencias y conclusión de esta actividad.</p>
-        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/MoralesMeza-act04.pdf" download>
-          Descargar PDF
-        </a>
-      </div>
-    </aside>
-
-  </div>
-
-</main>
-
-<!-- ===================== FOOTER ===================== -->
-<footer class="site-footer">
-  <div class="footer-grid">
-    <div>
-      <span class="brand-mark" aria-hidden="true">◈</span>
-      <p class="footer-course">CNO IV — Seguridad Informática</p>
-      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Contacto</h4>
-      <p>184937@upslp.edu.mx</p>
-    </div>
-    <div class="footer-col">
-      <h4>Redes académicas</h4>
-      <ul>
-        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Estado del sitio</h4>
-      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
-    </div>
-  </div>
-</footer>
-
-<script src="../../js/main.js"></script>
-</body>
-</html>
+:root{
+  --bg: #EDF2FA;
+  --panel: #FFFFFF;
+  --panel-2: #DCE7F7;
+  --line: #AFC4E0;
+  --text: #14213D;
+  --text-dim: #47607F;
+  --cyan: #1458B8;
+  --green: #2F8A7A;
+  --amber: #D98C3D;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+
+  --radius: 10px;
+  --max: 1120px;
+  --header-h: 100px;
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *, *::before, *::after{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4{
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+}
+
+p{ margin: 0 0 1em; }
+ul{ margin: 0; padding: 0; list-style: none; }
+a{ color: inherit; }
+
+.skip-link{
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--cyan);
+  color: #F5F9FC;
+  padding: 0.75em 1.25em;
+  z-index: 200;
+  font-weight: 600;
+  border-radius: 0 0 6px 0;
+}
+.skip-link:focus{ left: 0; }
+
+:focus-visible{
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+.site-header{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(238, 243, 249, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-bar{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand{ display: flex; align-items: center; gap: 12px; }
+
+.brand-mark{
+  color: var(--cyan);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.brand-text{ display: flex; flex-direction: column; }
+
+.brand-name{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.brand-alias{
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.85em;
+}
+.brand-course{
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+}
+
+.nav-toggle{
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+.nav-toggle span{
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  display: block;
+}
+
+.main-nav ul{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.main-nav > ul > li > a,
+.dropdown-toggle{
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.main-nav > ul > li > a:hover,
+.main-nav > ul > li > a.active,
+.dropdown-toggle:hover{
+  color: var(--text);
+  background: var(--panel-2);
+}
+
+.has-dropdown{ position: relative; }
+.chev{ font-size: 0.7em; margin-left: 2px; }
+
+.dropdown-menu{
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  box-shadow: 0 12px 30px -12px rgba(27, 42, 61, 0.18);
+}
+.has-dropdown:hover .dropdown-menu,
+.has-dropdown:focus-within .dropdown-menu{
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-disabled{
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.nav-disabled em{
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  margin-left: 4px;
+}
+
+.dropdown-link{
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-decoration: none;
+}
+.dropdown-link:hover{
+  background: var(--panel-2);
+  color: var(--cyan);
+}
+.dropdown-link.active{
+  color: var(--cyan);
+  background: var(--panel-2);
+}
+
+.disabled-link{
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+.disabled-link em{
+  display: block;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--amber);
+}
+
+.header-meta{
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+.header-meta-inner{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 8px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+.header-meta .dot{ color: var(--line); }
+
+.badge-secure{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+}
+.pulse{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(78, 139, 139, 0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse{
+  0%{ box-shadow: 0 0 0 0 rgba(78, 139, 139, 0.55); }
+  70%{ box-shadow: 0 0 0 8px rgba(78, 139, 139, 0); }
+  100%{ box-shadow: 0 0 0 0 rgba(78, 139, 139, 0); }
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 72px 24px 56px;
+}
+
+.hero-grid{
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.eyebrow{
+  font-family: var(--font-mono);
+  color: var(--cyan);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.hero-copy h1{
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  margin-bottom: 20px;
+}
+
+.hero-lede{ color: var(--text-dim); max-width: 52ch; }
+
+.hero-actions{
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn-primary{
+  background: var(--cyan);
+  color: #F5F9FC;
+}
+.btn-primary:hover{ background: #255C8C; }
+.btn-ghost{
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line);
+}
+.btn-ghost:hover{ border-color: var(--cyan); }
+.btn-block{ width: 100%; }
+
+/* Terminal signature element */
+.terminal{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 20px 60px -20px rgba(27, 42, 61, 0.25);
+}
+.terminal-titlebar{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+}
+.terminal-titlebar span[class^="dot-"]{
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.dot-r{ background: #E0645A; }
+.dot-y{ background: #E8B04D; }
+.dot-g{ background: var(--green); }
+.terminal-title{
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.terminal-body{
+  margin: 0;
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  min-height: 220px;
+  color: #8FC7C7;
+  background: #16243A;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+.section{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+.section-alt{
+  background: var(--panel);
+  max-width: none;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.section-alt > *{
+  max-width: var(--max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-head{ margin-bottom: 36px; }
+.section-index{
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+.section-head h2{ font-size: clamp(1.5rem, 2.4vw, 2rem); }
+
+/* Propósito */
+.proposito-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.proposito-card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.proposito-icon{
+  display: inline-block;
+  font-size: 1.3rem;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+.proposito-card h3{
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.proposito-card p{
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Perfil */
+.perfil-grid{
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 36px;
+  align-items: start;
+}
+.perfil-text{ color: var(--text-dim); }
+.tag-list{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.tag-list li{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.perfil-card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.perfil-card h3{ font-size: 1.05rem; margin-bottom: 16px; }
+.focus-list{
+  counter-reset: item;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.focus-list li{
+  list-style: none; 
+  counter-increment: item;
+  position: relative;
+  padding-left: 34px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.focus-list li::before{
+  content: counter(item, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: -1px;
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-size: 0.8rem;
+}
+
+/* Stack */
+.stack-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.stack-card{
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.stack-label{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.stack-value{
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 8px 0 6px;
+}
+.stack-desc{
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* Contact */
+.contact-grid{
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 36px;
+  align-items: start;
+}
+.contact-form{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.field{ display: flex; flex-direction: column; gap: 6px; }
+.field label{
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+.field input,
+.field textarea{
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus{
+  border-color: var(--cyan);
+}
+.form-status{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--green);
+  min-height: 1.2em;
+  margin: 0;
+}
+.form-status.error{ color: #C0392B; }
+
+.contact-note{
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: var(--text-dim);
+}
+.contact-note h3{ color: var(--text); font-size: 1rem; }
+
+/* =========================================================
+   LISTADO DE ACTIVIDADES (tarjetas apiladas, p. ej. en index.html)
+   ========================================================= */
+.activities-list{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activity-item{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.activity-item:hover{
+  border-color: var(--cyan);
+  background: var(--panel-2);
+  transform: translateX(4px);
+}
+.activity-item:focus-visible{
+  border-color: var(--cyan);
+}
+
+.activity-item-index{
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 13px;
+}
+
+.activity-item-body{ flex: 1; min-width: 0; }
+.activity-item-body h3{
+  font-size: 1.02rem;
+  margin-bottom: 4px;
+}
+.activity-item-body p{
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.activity-item-tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.activity-item-tags li{
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.activity-item-arrow{
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.activity-item:hover .activity-item-arrow{
+  color: var(--cyan);
+  transform: translateX(3px);
+}
+
+.activity-item.is-disabled{
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.activity-item-status{
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PÁGINA DE ACTIVIDAD
+   ========================================================= */
+.activity-hero{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 48px 24px 40px;
+  border-bottom: 1px solid var(--line);
+}
+.breadcrumb{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+}
+.breadcrumb a{ color: var(--text-dim); text-decoration: none; }
+.breadcrumb a:hover{ color: var(--cyan); }
+.breadcrumb span{ color: var(--cyan); }
+
+.activity-hero h1{
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  margin: 12px 0 16px;
+}
+.activity-hero h1 code{
+  font-family: var(--font-mono);
+  color: var(--cyan);
+  background: none;
+  padding: 0;
+}
+.activity-hero .hero-lede{ max-width: 68ch; }
+
+.meta-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 28px 0 0;
+}
+.meta-item{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.meta-item dt{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+  margin-bottom: 6px;
+}
+.meta-item dd{
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.body-copy{
+  color: var(--text-dim);
+  max-width: 74ch;
+}
+.body-copy code{
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--panel-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.concept-list{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 74ch;
+}
+.concept-list li{
+  color: var(--text-dim);
+  padding-left: 18px;
+  position: relative;
+}
+.concept-list li::before{
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--green);
+}
+.concept-list strong{ color: var(--text); }
+
+.code-block{
+  background: #16243A;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-width: 100%;
+}
+.code-block-bar{
+  padding: 10px 16px;
+  background: #1F3350;
+  border-bottom: 1px solid #2C4A6E;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #B9CBE0;
+}
+.code-block pre{
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #E4EDF6;
+  line-height: 1.6;
+}
+.code-note{
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--amber);
+  max-width: 74ch;
+}
+
+.download-section{ padding-top: 8px; }
+.download-card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.download-card h3{ margin-bottom: 6px; font-size: 1.05rem; }
+.download-card p{ margin: 0; color: var(--text-dim); font-size: 0.9rem; }
+
+/* ---- Layout de dos columnas con sidebar fija (datos + PDF siempre visibles) ---- */
+.activity-layout{
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px 48px;
+  align-items: start;
+}
+
+.activity-main{ min-width: 0; }
+.activity-main .section{
+  max-width: none;
+  margin: 0;
+  padding: 48px 0;
+}
+.activity-main .section + .section{
+  border-top: 1px solid var(--line);
+}
+
+.activity-sidebar{
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 40px 0 48px;
+}
+
+.sidebar-card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.sidebar-card h3{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cyan);
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-meta-item + .sidebar-meta-item{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.sidebar-meta-item dt{
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.sidebar-meta-item dd{
+  margin: 0;
+  font-size: 0.9rem;
+}
+.sidebar-meta-item dd code{
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+.sidebar-download{ text-align: center; }
+.sidebar-download h3{
+  border-bottom: none;
+  padding-bottom: 0;
+  text-align: left;
+}
+.sidebar-download-icon{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px auto 14px;
+  font-size: 1.05rem;
+}
+.sidebar-download p{
+  color: var(--text-dim);
+  font-size: 0.84rem;
+  margin: 0 0 16px;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.site-footer{
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  padding: 48px 24px 28px;
+}
+.footer-grid{
+  max-width: var(--max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 24px;
+}
+.footer-course{
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+.footer-copy{
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.footer-col h4{
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  margin-bottom: 12px;
+}
+.footer-col p, .footer-col li{
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+.footer-col a{ text-decoration: none; color: var(--text); }
+.footer-col a:hover{ color: var(--cyan); }
+
+/* =========================================================
+   TABLAS DE DATOS (usadas en páginas de actividad)
+   ========================================================= */
+.table-wrap{
+  max-width: 74ch;
+  margin: 0 0 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.data-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.data-table th,
+.data-table td{
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.data-table thead th{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.data-table tbody th,
+.data-table tbody td:first-child{
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.data-table tbody td{
+  color: var(--text-dim);
+}
+
+.data-table tbody tr:last-child td,
+.data-table tbody tr:last-child th{
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover{
+  background: var(--panel-2);
+}
+
+/* =========================================================
+   FIGURAS (capturas de evidencia con pie de imagen)
+   ========================================================= */
+.figure{
+  max-width: 74ch;
+  margin: 0 0 28px;
+}
+
+.figure img{
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.figure figcaption{
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.figure figcaption code{
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+@media (max-width: 700px){
+  .data-table th,
+  .data-table td{ padding: 10px 12px; }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 960px){
+  .activity-layout{
+    grid-template-columns: 1fr;
+  }
+  .activity-sidebar{
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 32px 0 0;
+  }
+  .activity-sidebar .sidebar-card{
+    flex: 1 1 260px;
+  }
+}
+
+@media (max-width: 860px){
+  .hero-grid{ grid-template-columns: 1fr; }
+  .proposito-grid{ grid-template-columns: 1fr; }
+  .meta-grid{ grid-template-columns: 1fr; }
+  .perfil-grid{ grid-template-columns: 1fr; }
+  .contact-grid{ grid-template-columns: 1fr; }
+  .stack-grid{ grid-template-columns: repeat(2, 1fr); }
+  .footer-grid{ grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 700px){
+  .nav-toggle{ display: flex; }
+  .main-nav{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    display: none;
+  }
+  .main-nav.open{ display: block; }
+  .main-nav ul{
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+  .has-dropdown .dropdown-menu{
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+    margin-top: 4px;
+  }
+  .has-dropdown.open .dropdown-menu{ display: block; }
+  .header-meta-inner{ font-size: 0.7rem; }
+
+  .activity-item{ flex-wrap: wrap; }
+  .activity-item-arrow{ display: none; }
+  .activity-sidebar{ flex-direction: column; }
+}
+
+@media (max-width: 520px){
+  .stack-grid{ grid-template-columns: 1fr; }
+  .footer-grid{ grid-template-columns: 1fr; }
+}
