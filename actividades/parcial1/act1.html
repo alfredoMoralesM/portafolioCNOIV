@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Act 1 — Captura de eventos de teclado | Parcial 1 · CNO IV Seguridad Informática</title>
-<meta name="description" content="Parcial 1, Actividad 1: introducción a la captura de eventos de teclado con la librería pynput, en el contexto de seguridad informática.">
+<title>Actividad 01 - Análisis en grupo de un ciberataque real</title>
+<meta name="description" content="Parcial 1, Actividad 1: análisis del ciberataque NotPetya (2017) contra A.P. Møller–Maersk y su impacto empresarial.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,13 +68,12 @@
 
   <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
   <section class="activity-hero">
-    <p class="breadcrumb"><a href="../../index.html#inicio">Inicio</a> / <a href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Actividades</a> / <a href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a> / <span>Act 1</span></p>
-    <span class="section-index">Parcial 1 · Act 1</span>
-    <h1>Captura de eventos de teclado con <code>pynput</code></h1>
+    <span class="section-index">Parcial 1 · Actividad 01</span>
+    <h1>Análisis en grupo de un ciberataque real y su impacto empresarial</h1>
     <p class="hero-lede">
-      Ejercicio introductorio de seguridad informática orientado a comprender, desde el lado
-      defensivo, cómo funciona la captura de eventos de entrada a nivel de sistema operativo:
-      la base técnica de amenazas como los keyloggers y de las estrategias para detectarlas.
+      Estudio de caso del ataque <code>NotPetya</code> (2017) contra la naviera A.P. Møller–Maersk:
+      contexto técnico, evaluación de impacto bajo el modelo CIA, costo económico estimado, relación
+      con marcos normativos internacionales y lecciones aplicables al contexto mexicano.
     </p>
   </section>
 
@@ -83,117 +82,335 @@
 
     <div class="activity-main">
 
-      <!-- ===================== INTRODUCCIÓN ===================== -->
+      <!-- ===================== 01. INTRODUCCIÓN ===================== -->
       <section class="section" id="introduccion">
         <div class="section-head">
           <span class="section-index">01</span>
           <h2>Introducción</h2>
         </div>
         <p class="body-copy">
-          Una parte importante de la seguridad ofensiva y defensiva consiste en entender cómo el sistema
-          operativo expone los eventos de entrada (teclado y mouse) a las aplicaciones. Herramientas
-          legítimas de accesibilidad, automatización y monitoreo utilizan estos mismos mecanismos, y son
-          también la base técnica que emplean programas maliciosos como los keyloggers. Esta actividad
-          utiliza la librería <code>pynput</code> para observar, de forma transparente y en un entorno
-          controlado, cómo se capturan estos eventos a nivel de código.
+          El presente informe analiza el caso del ataque NotPetya ocurrido en junio de 2017 contra la
+          naviera danesa A.P. Møller–Maersk, considerado uno de los ciberataques más costosos de la
+          historia. A partir de fuentes técnicas verificables, se examinan las causas, el desarrollo, el
+          impacto sobre los principios de confidencialidad, integridad y disponibilidad (CIA), el costo
+          económico estimado en pesos mexicanos, su relación con marcos normativos internacionales y las
+          lecciones que pueden aplicarse al contexto mexicano y latinoamericano.
         </p>
       </section>
 
-      <!-- ===================== OBJETIVO ===================== -->
-      <section class="section" id="objetivo">
+      <!-- ===================== 02. LÍNEA DEL TIEMPO DEL ATAQUE ===================== -->
+      <section class="section" id="linea-tiempo">
         <div class="section-head">
           <span class="section-index">02</span>
-          <h2>Objetivo</h2>
+          <h2>Línea del tiempo del ataque</h2>
         </div>
-        <p class="body-copy">
-          Comprender el funcionamiento básico de la captura de eventos de teclado en Python mediante la
-          librería <code>pynput</code>, con el fin de reconocer el mecanismo técnico detrás de los
-          keyloggers y fortalecer criterios de detección y defensa frente a este tipo de amenazas —no
-          su uso para captura encubierta o no autorizada de información.
-        </p>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/actividades/images/act01-fig01.png" alt="Línea del tiempo del ataque NotPetya, desde la advertencia interna ignorada en 2016 hasta el impacto financiero y la atribución en 2018" loading="lazy">
+          <figcaption>Figura 1. Línea del tiempo. Análisis del ataque.</figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Fecha</th><th>Evento</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>2016</td><td>Advertencia interna ignorada — Windows 2000/XP sin reemplazar; incentivos por "uptime".</td></tr>
+              <tr><td>Mar 2017</td><td>Parche MS17-010 disponible — corrige EternalBlue/EternalRomance; no se aplicó a tiempo.</td></tr>
+              <tr><td>22 jun 2017</td><td>Backdoor insertado en M.E.Doc — actualización maliciosa distribuida a usuarios ucranianos.</td></tr>
+              <tr><td>27 jun, 04:00</td><td>Detonación de NotPetya — golpea bancos y empresas de energía en Ucrania.</td></tr>
+              <tr><td>27 jun, 13:21</td><td>Maersk confirma caída de TI — correo, teléfonos y sistemas de reservas fuera de línea.</td></tr>
+              <tr><td>27 jun, tarde</td><td>Red global inutilizada — 150 controladores de dominio destruidos en minutos.</td></tr>
+              <tr><td>Jul 2017</td><td>Reconstrucción con servidor de Ghana — 10 días para reconstruir la infraestructura crítica.</td></tr>
+              <tr><td>Ago 2017 – Feb 2018</td><td>Impacto financiero y atribución — USD 250–300M reportados; ataque atribuido a Rusia.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      <!-- ===================== CÓDIGO ===================== -->
-      <section class="section" id="codigo">
+      <!-- ===================== 03. CONTEXTO GENERAL DEL ATAQUE ===================== -->
+      <section class="section" id="contexto">
         <div class="section-head">
           <span class="section-index">03</span>
-          <h2>Código</h2>
+          <h2>Contexto general del ataque</h2>
         </div>
         <p class="body-copy">
-          Ejemplo mínimo y transparente: el script imprime en la propia terminal las teclas detectadas
-          mientras se ejecuta, sin escribir a archivos ni enviar datos a ningún destino. Se ejecuta y se
-          detiene de forma visible, y sirve como base para el análisis conceptual, no como herramienta de
-          vigilancia.
+          <strong>Año y país de origen:</strong> el ataque se detectó el 27 de junio de 2017, con foco
+          inicial en Ucrania, aunque se propagó en cuestión de horas a más de 65 países.
         </p>
-        <div class="code-block">
-          <div class="code-block-bar">
-            <span>captura_teclado.py</span>
-          </div>
-          <pre><code>from pynput import keyboard
-
-def on_press(key):
-    try:
-        print(f"Tecla alfanumérica presionada: {key.char}")
-    except AttributeError:
-        print(f"Tecla especial presionada: {key}")
-
-def on_release(key):
-    print(f"Tecla liberada: {key}")
-    # ESC detiene el listener de forma explícita y visible
-    if key == keyboard.Key.esc:
-        return False
-
-# El listener corre en primer plano y termina al presionar ESC
-with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()</code></pre>
-        </div>
-        <p class="code-note">
-          <strong>Uso ético:</strong> ejecutar únicamente en un equipo propio y con fines de aprendizaje.
-          Este ejemplo no persiste, oculta ni transmite información; capturar teclado en equipos ajenos
-          sin autorización es ilegal y no es el propósito de esta actividad.
+        <p class="body-copy">
+          <strong>Empresa afectada:</strong> A.P. Møller–Maersk, con sede en Copenhague, Dinamarca, la
+          mayor naviera de contenedores del mundo, responsable en ese momento de aproximadamente una
+          quinta parte del comercio marítimo global, con 76 terminales portuarias, cerca de 800 buques y
+          presencia en 130 países.
+        </p>
+        <p class="body-copy">
+          <strong>Condiciones de ciberseguridad previas:</strong> de acuerdo con declaraciones del propio
+          presidente de Maersk, Jim Hagemann Snabe, la compañía contaba con una postura de
+          ciberseguridad "básicamente promedio", comparable a la de muchas otras empresas de su tamaño. La
+          infraestructura incluía sistemas heredados (Windows 2000 y Windows XP) pendientes de
+          actualización, y administradores de sistemas habían advertido desde 2016 sobre la vulnerabilidad
+          de una red de más de 80,000 equipos, sin que la modernización se completara a tiempo.
+        </p>
+        <p class="body-copy">
+          <strong>Factores que facilitaron el ataque:</strong> confluyeron fallas técnicas y humanas. En
+          marzo de 2017, Microsoft había publicado el parche MS17-010 para la vulnerabilidad EternalBlue
+          en el protocolo SMB, pero no todos los sistemas de Maersk estaban actualizados; además, un
+          administrador de dominio había iniciado sesión en un servidor pocos días antes del ataque,
+          dejando credenciales privilegiadas expuestas en memoria.
         </p>
       </section>
 
-      <!-- ===================== CONCEPTOS PRINCIPALES ===================== -->
-      <section class="section" id="conceptos">
+      <!-- ===================== 04. TABLA TÉCNICA DEL ATAQUE ===================== -->
+      <section class="section" id="tabla-tecnica">
         <div class="section-head">
           <span class="section-index">04</span>
-          <h2>Conceptos principales</h2>
+          <h2>Tabla técnica del ataque</h2>
         </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Elemento</th><th>Descripción</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tipo de ataque</td>
+                <td>Malware destructivo ("wiper") disfrazado de ransomware; se presentó como una variante de Petya, por lo que se le denominó NotPetya / EternalPetya.</td>
+              </tr>
+              <tr>
+                <td>Actor o grupo atacante</td>
+                <td>Sandworm Team, unidad vinculada a la inteligencia militar rusa (GRU). Atribución sostenida por los gobiernos de EE. UU., Reino Unido y Ucrania.</td>
+              </tr>
+              <tr>
+                <td>Vector de entrada</td>
+                <td>Actualización comprometida del software de contabilidad y facturación ucraniano M.E.Doc (Intellect Service), de uso obligatorio para empresas que operan en Ucrania.</td>
+              </tr>
+              <tr>
+                <td>Vulnerabilidad explotada</td>
+                <td>CVE-2017-0144 (EternalBlue) y CVE-2017-0145 (EternalRomance) sobre el protocolo SMBv1, corregidas por Microsoft en el boletín MS17-010 (marzo 2017) pero no aplicadas en Maersk; adicionalmente, reutilización de credenciales de administrador de dominio.</td>
+              </tr>
+              <tr>
+                <td>Etapas del ataque (MITRE ATT&amp;CK)</td>
+                <td>Acceso inicial: T1195.002 (compromiso de cadena de suministro de software). Ejecución: T1204/T1059 (actualización maliciosa autoejecutada, 27 jun. 2017). Acceso a credenciales: T1003.001 (volcado de credenciales tipo Mimikatz desde LSASS). Movimiento lateral: T1210 (explotación de servicios remotos vía EternalBlue/EternalRomance) y T1021.002 (SMB/recursos administrativos, PsExec/WMIC). Impacto: T1485 (destrucción de datos) y T1561 (borrado de disco: sobrescritura de MBR y MFT).</td>
+              </tr>
+              <tr>
+                <td>Sistemas o servicios comprometidos</td>
+                <td>Aproximadamente 150 controladores de dominio (Active Directory) sincronizados, entre 45,000 y 49,000 estaciones de trabajo, cerca de 4,000 servidores y 2,500 aplicaciones; sistemas de las terminales portuarias operadas por APM Terminals en 76 puertos de 59 países; correo electrónico, telefonía IP, sistemas de reservas, facturación y atención a clientes.</td>
+              </tr>
+              <tr>
+                <td>Duración del incidente</td>
+                <td>Propagación e interrupción total de la red: minutos a horas, el mismo 27 de junio de 2017. Reconstrucción de la infraestructura crítica (reinstalación de servidores y equipos): aproximadamente 10 días. Normalización operativa completa de reservas, facturación y capacidad portuaria: varias semanas adicionales.</td>
+              </tr>
+              <tr>
+                <td>Mecanismos de detección y respuesta</td>
+                <td>No existía un mecanismo de detección temprana capaz de contener la propagación; el malware evadió antivirus tradicionales al usar herramientas legítimas del sistema. La respuesta inicial fue manual: desconexión física de equipos y centros de datos por parte del personal de TI. La recuperación fue posible gracias a un controlador de dominio en la oficina de Ghana que permaneció desconectado por un corte de energía previo al ataque, preservando una copia íntegra de Active Directory; participaron equipos de emergencia de Microsoft y de la consultora Deloitte.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 05. EVALUACIÓN DEL IMPACTO (MODELO CIA) ===================== -->
+      <section class="section" id="modelo-cia">
+        <div class="section-head">
+          <span class="section-index">05</span>
+          <h2>Evaluación del impacto (Modelo CIA)</h2>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Principio</th><th>Nivel de impacto</th><th>Evidencia del caso</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Confidencialidad</td>
+                <td>Impacto limitado</td>
+                <td>Según declaraciones del propio CEO Søren Skou, no se identificó robo ni fuga confirmada de datos de clientes; el objetivo del malware era destructivo, no exfiltrar información. Aun así, el compromiso de credenciales de administrador de dominio implicó una exposición potencial de información sensible de la red interna.</td>
+              </tr>
+              <tr>
+                <td>Integridad</td>
+                <td>Impacto crítico</td>
+                <td>NotPetya sobrescribió el Registro de Arranque Maestro (MBR) y cifró la Tabla Maestra de Archivos (MFT) de forma irreversible —sin posibilidad real de recuperación, aunque se pagara el rescate—, destruyendo tanto la copia primaria como la de respaldo de Active Directory en la mayoría de las ubicaciones de Maersk.</td>
+              </tr>
+              <tr>
+                <td>Disponibilidad</td>
+                <td>Impacto extremo</td>
+                <td>Caída total de los sistemas de TI a nivel global: correo electrónico, telefonía, sitio de reservas en línea, sistemas de facturación y control de contenedores quedaron inoperables. Entre 17 y 76 terminales portuarias suspendieron o redujeron drásticamente sus operaciones; la empresa recurrió a procesos manuales durante 10 días y registró una caída de hasta el 20% en volúmenes de negocio durante varias semanas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 06. CÁLCULO DEL COSTO TOTAL DEL CIBERATAQUE ===================== -->
+      <section class="section" id="costo-total">
+        <div class="section-head">
+          <span class="section-index">06</span>
+          <h2>Cálculo del costo total del ciberataque</h2>
+        </div>
+        <p class="body-copy">
+          Maersk reportó públicamente, a través de su presidente Jim Hagemann Snabe en el Foro Económico
+          Mundial de Davos, y en su informe financiero del segundo trimestre de 2017, un impacto
+          económico total de entre USD 200 y 300 millones, con una estimación central de USD 250-300
+          millones. Para efectos de este análisis se utiliza un punto medio de USD 275 millones, convertido
+          a pesos mexicanos con el tipo de cambio promedio de referencia para 2017 (aproximadamente
+          $18.90 MXN por dólar, consistente con los indicadores históricos publicados por el Banco de
+          México).
+        </p>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Tipo de costo</th><th>Descripción</th><th>Estimación (USD)</th><th>Estimación (MXN)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pérdidas operativas</td>
+                <td>Interrupción de reservas, facturación y operación en 17-76 terminales durante ~10-14 días; caída de hasta 20% en volúmenes de negocio durante varias semanas.</td>
+                <td>≈ USD 150,000,000</td>
+                <td>≈ $2,835,000,000 MXN</td>
+              </tr>
+              <tr>
+                <td>Costos técnicos</td>
+                <td>Reinstalación completa de infraestructura: 4,000 servidores, 45,000 PC y 2,500 aplicaciones en 10 días; horas extraordinarias de personal de TI y proveedores externos.</td>
+                <td>≈ USD 90,000,000</td>
+                <td>≈ $1,701,000,000 MXN</td>
+              </tr>
+              <tr>
+                <td>Daños reputacionales</td>
+                <td>Percepción de riesgo entre clientes, cobertura mediática global negativa, revisión de contratos por parte de aseguradoras y socios comerciales.</td>
+                <td>≈ USD 25,000,000</td>
+                <td>≈ $472,500,000 MXN</td>
+              </tr>
+              <tr>
+                <td>Costos legales / regulatorios</td>
+                <td>Revisión contractual con clientes y aseguradoras; no se registraron multas regulatorias formales por tratarse de un incidente sin fuga confirmada de datos personales.</td>
+                <td>≈ USD 10,000,000</td>
+                <td>≈ $189,000,000 MXN</td>
+              </tr>
+              <tr>
+                <td>Pago de rescate o extorsión</td>
+                <td>No se realizó pago efectivo: la dirección de correo del atacante fue bloqueada por el proveedor Posteo el mismo día del ataque; el rescate solicitado era de USD 300 por equipo, monto irrelevante frente al daño total.</td>
+                <td>USD 0 (no pagado)</td>
+                <td>$0 MXN</td>
+              </tr>
+              <tr>
+                <td><strong>TOTAL ESTIMADO</strong></td>
+                <td>Suma de pérdidas directas e indirectas reportadas públicamente por la compañía.</td>
+                <td><strong>≈ USD 275,000,000</strong></td>
+                <td><strong>≈ $5,197,500,000 MXN</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 07. RELACIÓN CON MARCOS NORMATIVOS ===================== -->
+      <section class="section" id="marcos-normativos">
+        <div class="section-head">
+          <span class="section-index">07</span>
+          <h2>Relación con marcos normativos</h2>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Control / marco de referencia</th><th>Cómo habría prevenido o mitigado el impacto</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ISO/IEC 27001 — A.8.8 (Gestión de vulnerabilidades técnicas)</td>
+                <td>Un programa formal de gestión de parches habría asegurado que todos los sistemas Windows aplicaran MS17-010 antes de junio de 2017, cerrando la vía de explotación de EternalBlue.</td>
+              </tr>
+              <tr>
+                <td>ISO/IEC 27001 — A.5.19-5.23 (Seguridad en las relaciones con proveedores)</td>
+                <td>La evaluación y monitoreo continuo de proveedores críticos de software, como M.E.Doc, habría permitido detectar la falta de actualizaciones y controles en sus servidores antes de que se convirtiera en vector de ataque.</td>
+              </tr>
+              <tr>
+                <td>ISO/IEC 27001 — A.8.22 (Segregación de redes)</td>
+                <td>La segmentación de red y la separación de controladores de dominio habrían limitado la propagación lateral del malware y evitado la pérdida simultánea de las copias primaria y de respaldo de Active Directory.</td>
+              </tr>
+              <tr>
+                <td>NIST CSF — función Protect (PR.AC, gestión de identidades y control de acceso con privilegio mínimo)</td>
+                <td>Restringir y monitorear las credenciales de administrador de dominio habría reducido la capacidad de Mimikatz para escalar privilegios y moverse lateralmente.</td>
+              </tr>
+              <tr>
+                <td>NIST CSF — función Recover (RC.RP, planificación de recuperación)</td>
+                <td>Contar con copias de respaldo aisladas (offline) de Active Directory en múltiples ubicaciones —y no depender de un servidor que por azar permaneció desconectado— habría acelerado drásticamente la recuperación.</td>
+              </tr>
+              <tr>
+                <td>NIST CSF — función Identify (ID.SC, gestión de riesgos de la cadena de suministro)</td>
+                <td>Un mapeo de dependencias críticas de software de terceros habría anticipado el riesgo sistémico que representaba una herramienta de uso obligatorio como M.E.Doc.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 08. LECCIONES APRENDIDAS Y RECOMENDACIONES ===================== -->
+      <section class="section" id="lecciones">
+        <div class="section-head">
+          <span class="section-index">08</span>
+          <h2>Lecciones aprendidas y recomendaciones</h2>
+        </div>
+
+        <h3>Fallas críticas detectadas</h3>
         <ul class="concept-list">
-          <li><strong>Listener de eventos:</strong> proceso que permanece a la espera de eventos de entrada del sistema (teclas presionadas o liberadas).</li>
-          <li><strong>Keylogger:</strong> programa que registra pulsaciones de teclado; puede ser legítimo (accesibilidad, depuración) o malicioso (robo de credenciales).</li>
-          <li><strong>Programación orientada a eventos:</strong> paradigma donde el flujo del programa responde a acciones externas, no a una secuencia lineal fija.</li>
-          <li><strong>Superficie de ataque:</strong> los mismos permisos que habilitan la automatización legítima pueden ser abusados si no se controlan.</li>
+          <li><strong>Gestión de parches inconsistente: </strong>el parche para EternalBlue existía desde marzo de 2017, pero no se había desplegado en toda la infraestructura al momento del ataque en junio.</li>
+          <li><strong>Dependencia excesiva de un único software de terceros de uso obligatorio (M.E.Doc), </strong>sin controles adicionales de aislamiento o monitoreo sobre su canal de actualización.</li>
+          <li><strong>Ausencia de segmentación efectiva de red, </strong>que permitió que credenciales de administrador de dominio comprometidas se usaran para infectar decenas de miles de dispositivos en minutos.</li>
+          <li><strong>Estrategia de respaldo no resiliente: </strong>tanto la copia primaria como la de contingencia de Active Directory quedaron inutilizables, y la recuperación dependió de una casualidad (un servidor fuera de línea por un corte eléctrico).</li>
+          <li><strong>Percepción organizacional de la ciberseguridad como función netamente técnica, </strong>no como prioridad estratégica del negocio, antes del incidente.</li>
+        </ul>
+
+        <h3>Buenas prácticas y recomendaciones aplicables al contexto mexicano y latinoamericano</h3>
+        <ul class="concept-list">
+          <li>Implementar un programa formal y auditable de gestión de parches y actualizaciones críticas, con plazos máximos de aplicación para vulnerabilidades de severidad alta.</li>
+          <li>Evaluar el riesgo de terceros y proveedores de software crítico —particularmente relevante en México, donde el uso de plataformas de facturación electrónica y proveedores autorizados por el SAT genera dependencias similares a la de M.E.Doc en Ucrania.</li>
+          <li>Elevar la ciberseguridad a nivel de gobierno corporativo, con reportes regulares al consejo de administración y presupuesto proporcional al riesgo, no solo al gasto histórico de TI.</li>
+          <li>Contratar cobertura de ciberseguros y desarrollar planes de continuidad de negocio (BCP) y de comunicación de crisis, siguiendo el ejemplo de la comunicación transparente que Maersk mantuvo durante el incidente.</li>
         </ul>
       </section>
 
-      <!-- ===================== APRENDIZAJES OBTENIDOS ===================== -->
-      <section class="section" id="aprendizajes">
+      <!-- ===================== 09. CONCLUSIONES ===================== -->
+      <section class="section" id="conclusiones">
         <div class="section-head">
-          <span class="section-index">05</span>
-          <h2>Aprendizajes obtenidos</h2>
+          <span class="section-index">09</span>
+          <h2>Conclusiones</h2>
         </div>
-        <!-- EDITAR: reflexión personal real del estudiante -->
         <p class="body-copy">
-          [Espacio para la reflexión personal: qué se entendió sobre la captura de eventos de entrada,
-          qué dificultades surgieron al ejecutar el script, y cómo se relaciona este mecanismo con la
-          detección de amenazas reales en un entorno de seguridad informática.]
+          El caso de Maersk demuestra que un ciberataque no dirigido específicamente contra una
+          organización puede, aun así, generar pérdidas económicas comparables a las de un desastre
+          operativo mayor: entre USD 250 y 300 millones (aproximadamente $5,200 millones de pesos
+          mexicanos), la reconstrucción completa de la infraestructura de TI en tan solo diez días, y la
+          interrupción de servicios logísticos críticos para el comercio internacional.
+        </p>
+        <p class="body-copy">
+          Asimismo, evidencia el riesgo sistémico que representan las cadenas de suministro digitales, en
+          las que la seguridad de un proveedor de software de terceros puede convertirse en la puerta de
+          entrada para comprometer a corporaciones multinacionales.
         </p>
       </section>
 
-      <!-- ===================== CONCLUSIÓN ===================== -->
-      <section class="section" id="conclusion">
+      <!-- ===================== 10. BIBLIOGRAFÍA ===================== -->
+      <section class="section" id="bibliografia">
         <div class="section-head">
-          <span class="section-index">06</span>
-          <h2>Conclusión</h2>
+          <span class="section-index">10</span>
+          <h2>Bibliografía</h2>
         </div>
-        <!-- EDITAR: conclusión real del estudiante -->
-        <p class="body-copy">
-          Esta actividad permitió analizar, a nivel de código, el principio técnico detrás de los
-          keyloggers sin recurrir a un uso malicioso: comprender ese mecanismo es un paso necesario para
-          poder reconocerlo, documentarlo y defenderse de él en escenarios reales de seguridad informática.
-        </p>
+        <ul class="concept-list">
+          <li>[1] Greenberg, A. (2018). <em>"The Untold Story of NotPetya, the Most Devastating Cyberattack in History"</em> y el libro <em>Sandworm: A New Era of Cyberwar and the Hunt for the Kremlin's Most Dangerous Hackers.</em> Referencia técnica sobre la atribución del ataque al grupo Sandworm (GRU) y el costo estimado por Maersk (USD 250-300 millones).</li>
+          <li>[2] CSO Online (2019). <em>"Rebuilding after NotPetya: How Maersk moved forward"</em>, basado en la presentación de Adam Banks (CTO/CIO de Maersk) y Andy Powell (CISO) en el Gartner Risk Summit de Londres. <a href="https://www.csoonline.com/article/567845/rebuilding-after-notpetya-how-maersk-moved-forward.html" target="_blank" rel="noopener">csoonline.com</a></li>
+          <li>[3] Bleeping Computer (2018). <em>"Maersk Reinstalled 45,000 PCs and 4,000 Servers to Recover From NotPetya Attack"</em>, con declaraciones de Jim Hagemann Snabe en el Foro Económico Mundial de Davos. <a href="https://www.bleepingcomputer.com/news/security/maersk-reinstalled-45-000-pcs-and-4-000-servers-to-recover-from-notpetya-attack/" target="_blank" rel="noopener">bleepingcomputer.com</a></li>
+          <li>[4] Tripwire — The State of Security (2017). <em>"NotPetya: Timeline of a Ransomworm"</em>, cronología técnica de la propagación, atribución de Kaspersky Lab y uso del exploit EternalBlue. <a href="https://www.tripwire.com/state-of-security/notpetya-timeline-of-a-ransomworm" target="_blank" rel="noopener">tripwire.com</a></li>
+          <li>[5] The Register (2017). <em>"NotPetya ransomware attack cost us $300m – shipping giant Maersk"</em>, con declaraciones del CEO Søren Skou sobre la ausencia de fuga de datos confirmada. <a href="https://www.theregister.com/2017/08/16/notpetya_ransomware_attack_cost_us_300m_says_shipping_giant_maersk/" target="_blank" rel="noopener">theregister.com</a></li>
+          <li>[6] CBC News (2017). <em>"Petya ransomware cost world's biggest container ship company up to $300M"</em>, con cifras del reporte financiero del segundo trimestre de 2017 de A.P. Møller–Maersk. <a href="https://www.cbc.ca/1.4249283" target="_blank" rel="noopener">cbc.ca</a></li>
+          <li>[7] SAFETY4SEA (2018). <em>"Maersk Line: Surviving from a cyber attack"</em>, análisis del sector marítimo sobre el incidente y su relación con la Resolución MSC.428(98) de la OMI sobre gestión de riesgos cibernéticos marítimos. <a href="https://safety4sea.com/cm-maersk-line-surviving-from-a-cyber-attack/" target="_blank" rel="noopener">safety4sea.com</a></li>
+          <li>[8] Banco de México (Banxico). <em>Sistema de Información Económica (SIE) — Tipo de cambio peso-dólar.</em> Utilizado como referencia para la conversión de cifras a pesos mexicanos. <a href="https://www.banxico.org.mx/SieInternet/" target="_blank" rel="noopener">banxico.org.mx</a></li>
+        </ul>
       </section>
 
     </div>
@@ -205,16 +422,15 @@ with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         <dl>
           <div class="sidebar-meta-item">
             <dt>Fecha</dt>
-            <!-- EDITAR: fecha real de la actividad -->
-            <dd>Por definir</dd>
+            <dd>24/08/2026</dd>
           </div>
           <div class="sidebar-meta-item">
-            <dt>Tecnologías</dt>
-            <dd>Python 3, librería <code>pynput</code></dd>
+            <dt>Caso analizado</dt>
+            <dd>A.P. Møller–Maersk — Ataque NotPetya (2017)</dd>
           </div>
           <div class="sidebar-meta-item">
             <dt>Entregable</dt>
-            <dd>Script comentado + reporte en PDF</dd>
+            <dd>Informe en PDF (trabajo en grupo)</dd>
           </div>
         </dl>
       </div>
@@ -222,8 +438,8 @@ with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
       <div class="sidebar-card sidebar-download">
         <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
         <h3>PDF de la actividad</h3>
-        <p>Reporte con introducción, objetivo, código, conceptos y conclusión de esta actividad.</p>
-        <a class="btn btn-primary btn-block" href="descargas/act1-captura-teclado.pdf" download>
+        <p>Informe completo con línea del tiempo, tabla técnica, evaluación CIA, costo estimado, marcos normativos y conclusiones.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/MoralesMeza-act01.pdf" download>
           Descargar PDF
         </a>
       </div>
@@ -243,13 +459,13 @@ with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
     </div>
     <div class="footer-col">
       <h4>Contacto</h4>
-      <p>correo@institucion.edu.mx</p>
+      <p>184937@upslp.edu.mx</p>
     </div>
     <div class="footer-col">
       <h4>Redes académicas</h4>
       <ul>
-        <li><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://www.linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a></li>
       </ul>
     </div>
     <div class="footer-col">
