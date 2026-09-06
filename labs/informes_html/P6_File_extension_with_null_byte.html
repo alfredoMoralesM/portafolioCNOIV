@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB: FILE PATH TRAVERSAL VALIDATION OF FILE EXTENSION WITH NULL BYTE BYPASS</title>
+<meta name="description" content="Informe técnico y resolución del laboratorio File Path Traversal Validation of File Extension with Null Byte Bypass - Fundamentos de Ciberseguridad.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+</head>
+<body>
+
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="inicio">
+  <div class="header-bar">
+    <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
+        <span class="brand-alias">// Alfred</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
+      <ul>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
+        <li class="has-dropdown">
+          <span class="dropdown-toggle" aria-haspopup="true">
+            Actividades <span class="chev" aria-hidden="true">▾</span>
+          </span>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 2 <em>· próximamente</em></span></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
+          </ul>
+        </li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos </span></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="header-meta">
+    <div class="header-meta-inner">
+      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
+    </div>
+  </div>
+
+</header>
+
+<main id="contenido">
+
+  <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
+  <section class="activity-hero">
+    <span class="section-index">Laboratorio Práctico</span>
+    <h1>LAB: FILE PATH TRAVERSAL VALIDATION OF FILE EXTENSION WITH NULL BYTE BYPASS</h1>
+    <p class="hero-lede">
+      Informe técnico sobre la explotación de Path Traversal eludiendo la validación de extensión mediante la inyección de un byte nulo (<code>%00</code>) para acceder al archivo <code>/etc/passwd</code>.
+    </p>
+  </section>
+
+  <!-- ===================== CONTENIDO + SIDEBAR FIJA ===================== -->
+  <div class="activity-layout">
+
+    <div class="activity-main">
+
+      <!-- ===================== 01. FICHA DEL LABORATORIO ===================== -->
+      <section class="section" id="ficha">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <h2>Ficha del laboratorio</h2>
+        </div>
+        <p class="body-copy">
+          <strong>Laboratorio:</strong> LAB: FILE PATH TRAVERSAL VALIDATION OF FILE EXTENSION WITH NULL BYTE BYPASS<br>
+          <strong>Nivel:</strong> Practitioner<br>
+          <strong>Tipo de explotación:</strong> File Path Traversal / Directory Traversal con evasión mediante inyección de Byte Nulo (%00)
+        </p>
+      </section>
+
+      <!-- ===================== 02. OBJETIVO DEL LABORATORIO ===================== -->
+      <section class="section" id="objetivo">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <h2>Objetivo del laboratorio</h2>
+        </div>
+        <p class="body-copy">
+          Explotar una vulnerabilidad de Path Traversal eludiendo la validación de extensión de archivo del servidor mediante la inyección de un byte nulo (%00), con el propósito de leer y extraer el contenido del archivo sensible /etc/passwd del sistema operativo.
+        </p>
+      </section>
+
+      <!-- ===================== 03. EXPLICACIÓN TÉCNICA DE LA VULNERABILIDAD ===================== -->
+      <section class="section" id="explicacion-tecnica">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <h2>Explicación técnica de la vulnerabilidad</h2>
+        </div>
+        <p class="body-copy">
+          Esta vulnerabilidad se origina en una discrepancia de procesamiento entre la capa de validación de la aplicación web y las llamadas de bajo nivel a la API del sistema de archivos del sistema operativo. En este escenario, el backend implementa una regla de control de entrada que verifica que el parámetro proporcionado termine estrictamente con una extensión de archivo permitida (como .jpg o .png). Sin embargo, la aplicación concatena directamente esta entrada en la ruta de búsqueda en disco sin normalizarla previamente.
+        </p>
+        <p class="body-copy">
+          Al suministrar una secuencia con un terminador de cadena nulo codificado en URL (%00 o byte 0x00), la capa de alto nivel de la aplicación evalúa la cadena completa y confirma que la condición del sufijo se cumple (ej. concluye en .jpg). Posteriormente, cuando la ruta se pasa a las funciones nativas del sistema de archivos (como open() o fopen()), el sistema interpreta el byte nulo como el final absoluto del string (null-terminated string). Por lo tanto, el sistema operativo trunca la ruta en el punto exacto de la inyección e ignora los caracteres posteriores, permitiendo el acceso arbitrario a archivos ajenos al directorio raíz previsto.
+        </p>
+        <p class="body-copy">
+          En el marco de OWASP Top 10, esta vulnerabilidad se clasifica bajo A01:2021 - Broken Access Control (y secundariamente asociada a fallos de inyección/manejo inseguro de entradas). En la tríada CIA, vulnera de forma crítica la Confidencialidad al permitir la lectura de credenciales, archivos de configuración del sistema y código fuente. Si existiera funcionalidad de escritura, comprometería la Integridad y Disponibilidad mediante sobreescritura de binarios o ejecución remota de código (RCE). En un entorno productivo, esto posibilita la exfiltración de llaves criptográficas, mapeo de cuentas del sistema y escalación horizontal o vertical de privilegios.
+        </p>
+      </section>
+
+      <!-- ===================== 04. PROCEDIMIENTO PASO A PASO ===================== -->
+      <section class="section" id="procedimiento">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <h2>Procedimiento paso a paso</h2>
+        </div>
+        <ul class="concept-list">
+          <li>Se inició la sesión configurando Burp Suite con la función de interceptación activada en la pestaña Proxy y abriendo el navegador integrado preconfigurado para capturar el tráfico web de la sesión de prueba.</li>
+          <li>Se navegó a la URL del laboratorio en la tienda en línea para explorar los componentes dinámicos de la interfaz y forzar la carga de los recursos estáticos del catálogo de productos.</li>
+          <li>Se analizó el registro de tráfico en la pestaña HTTP History, identificando múltiples peticiones dirigidas al endpoint <code>/image</code> que utilizaban el parámetro <code>filename</code> para solicitar las imágenes correspondientes a cada artículo comercializado.</li>
+          <li>Se seleccionó una de las solicitudes representativas (<code>GET /image?filename=49.jpg</code>) y, mediante el menú contextual, se envió a la herramienta Repeater para realizar pruebas controladas y personalizadas sobre el parámetro vulnerable.</li>
+          <li>Dentro de Repeater, se ejecutó un envío inicial de la solicitud legítima para confirmar el comportamiento estándar del servidor, el cual respondió con un código HTTP 200 OK y la secuencia binaria correspondiente al formato JPEG de la imagen.</li>
+          <li>Finalmente, se modificó el valor del parámetro inyectando secuencias de retroceso de directorio junto con el byte nulo antes de la extensión esperada (<code>../../../etc/passwd%0049.jpg</code>). Al emitir la petición, el servidor eludió la restricción de sufijo y devolvió en el cuerpo de la respuesta el contenido en texto plano del archivo <code>/etc/passwd</code>, validando el banner de resolución del laboratorio.</li>
+        </ul>
+      </section>
+
+      <!-- ===================== 05. EVIDENCIA DEL PROCEDIMIENTO ===================== -->
+      <section class="section" id="evidencia-procedimiento">
+        <div class="section-head">
+          <span class="section-index">05</span>
+          <h2>Evidencia del procedimiento</h2>
+        </div>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/01.png" alt="Habilitación del proxy de Burp Suite" loading="lazy">
+          <figcaption>Figura 1. Habilitación del proxy de Burp Suite con la interceptación activa y apertura del navegador integrado.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/02.png" alt="Carga de la página principal" loading="lazy">
+          <figcaption>Figura 2. Carga y visualización de la página principal del catálogo de productos dentro de la aplicación objetivo.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/03.png" alt="Captura y monitoreo de peticiones HTTP" loading="lazy">
+          <figcaption>Figura 3. Captura y monitoreo de las peticiones HTTP en el proxy correspondientes a la carga de recursos de imágenes.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/04.png" alt="Selección de solicitud en historial HTTP" loading="lazy">
+          <figcaption>Figura 4. Selección de la solicitud GET a /image?filename=49.jpg en el historial HTTP para su reenvío a Repeater.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/05.png" alt="Inspección de solicitud original en Repeater" loading="lazy">
+          <figcaption>Figura 5. Inspección de la solicitud original en Repeater y validación de la respuesta binaria correspondiente a la imagen.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/pasos/06.png" alt="Inyección del payload traversal con byte nulo" loading="lazy">
+          <figcaption>Figura 6. Inyección del payload traversal con byte nulo logrando la exfiltración del archivo /etc/passwd en la respuesta HTTP.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== 06. EVIDENCIAS OBLIGATORIAS ===================== -->
+      <section class="section" id="evidencias-obligatorias">
+        <div class="section-head">
+          <span class="section-index">06</span>
+          <h2>Evidencias obligatorias</h2>
+        </div>
+
+        <h3>Request interceptado</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/evidencia/01_request.png" alt="Request interceptado" loading="lazy">
+          <figcaption>Figura 7. Request interceptado — Petición HTTP interceptada en el Proxy que solicita la carga de un recurso multimedia mediante el endpoint /image.</figcaption>
+        </figure>
+
+        <h3>Payload utilizado</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/evidencia/02_payload.png" alt="Payload utilizado" loading="lazy">
+          <figcaption>Figura 8. Payload utilizado — Inyección del vector de path traversal con el terminador de byte nulo (%00) en el parámetro filename dentro del Repeater.</figcaption>
+        </figure>
+
+        <h3>Respuesta vulnerable</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/evidencia/03_respuesta.png" alt="Respuesta vulnerable" loading="lazy">
+          <figcaption>Figura 9. Respuesta vulnerable — Respuesta HTTP 200 OK del servidor mostrando el contenido completo del archivo /etc/passwd tras procesar el byte nulo.</figcaption>
+        </figure>
+
+        <h3>Confirmación de “Lab Solved”</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/evidencia/04_lab_solved.png" alt="Confirmación de Lab Solved" loading="lazy">
+          <figcaption>Figura 10. Confirmación de “Lab Solved” — Confirmación de laboratorio resuelto.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== 07. EXPLICACIÓN DEL PAYLOAD ===================== -->
+      <section class="section" id="explicacion-payload">
+        <div class="section-head">
+          <span class="section-index">07</span>
+          <h2>Explicación del payload</h2>
+        </div>
+        <p class="body-copy">
+          El vector de ataque empleado fue: <code>../../../etc/passwd%0049.jpg</code> (o equivalentemente <code>../../../etc/passwd%00.jpg</code>).
+        </p>
+        <p class="body-copy">
+          <strong>Análisis sintáctico y funcional:</strong>
+        </p>
+        <ul class="concept-list">
+          <li><strong>1. <code>../../../</code>:</strong> Secuencia de escape de directorios (directory traversal) que retrocede iterativamente en el árbol de directorios del sistema de archivos desde la carpeta base configurada (ej. <code>/var/www/images/</code>) hasta alcanzar el directorio raíz (<code>/</code>).</li>
+          <li><strong>2. <code>etc/passwd</code>:</strong> Ruta relativa al archivo objetivo del sistema operativo Unix/Linux que contiene las identidades y configuraciones básicas de las cuentas de usuario locales.</li>
+          <li><strong>3. <code>%00</code>:</strong> Representación URL-encoded del carácter NULL (byte 0x00, '\0'). Funciona como delimitador y terminador de cadena en llamadas nativas del sistema operativo en C. Cuando el sistema operativo procesa la ruta, trunca la lectura exactamente antes de este carácter.</li>
+          <li><strong>4. <code>49.jpg</code>:</strong> Extensión/nombre dummy colocado al final para satisfacer la regla de validación de sufijo aplicada por el backend en capas superiores de código.</li>
+        </ul>
+      </section>
+
+      <!-- ===================== 08. MITIGACIÓN RECOMENDADA ===================== -->
+      <section class="section" id="mitigacion">
+        <div class="section-head">
+          <span class="section-index">08</span>
+          <h2>Mitigación recomendada</h2>
+        </div>
+        <p class="body-copy">
+          Para mitigar de forma integral esta vulnerabilidad, se deben implementar las siguientes directivas de defensa en profundidad:
+        </p>
+        <ul class="concept-list">
+          <li><strong>1. Desacoplamiento del sistema de archivos:</strong> Evitar que parámetros ingresados por el usuario se pasen de manera directa a APIs del sistema operativo. Se recomienda emplear identificadores indirectos (ej. índices numéricos, UUIDs o claves almacenadas en base de datos) para acceder a los archivos.</li>
+          <li><strong>2. Lista blanca estricta (Whitelisting):</strong> Si la entrada del usuario es indispensable, validar que el nombre del archivo se ajuste estrictamente a un conjunto de caracteres alfanuméricos permitidos, rechazando cualquier carácter especial como <code>%00</code>, <code>/</code> o <code>\</code>.</li>
+          <li><strong>3. Canonicalización y verificación de ruta:</strong> Resolver la ruta absoluta en el servidor utilizando métodos nativos seguros (como <code>getCanonicalPath()</code> en Java o <code>realpath()</code> en PHP/C) y verificar explícitamente que la ruta resultante comience estrictamente con el directorio base permitido antes de abrir o leer el archivo.</li>
+          <li><strong>4. Actualización del entorno de ejecución:</strong> Mantener actualizadas las versiones del lenguaje (ej. versiones modernas de PHP 5.3.4+ o Java que rechazan o mitigan automáticamente la inyección de bytes nulos en llamadas de sistema de archivos).</li>
+          <li><strong>5. Principio de menor privilegio:</strong> Ejecutar el servidor web con una cuenta de usuario restringida que carezca de permisos de lectura sobre archivos sensibles del sistema operativo.</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- ===================== SIDEBAR FIJA: DATOS + DESCARGA ===================== -->
+    <aside class="activity-sidebar">
+      <div class="sidebar-card">
+        <h3>Datos de la actividad</h3>
+        <dl>
+          <div class="sidebar-meta-item">
+            <dt>Fecha</dt>
+            <dd>09/09/2026</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Laboratorio</dt>
+            <dd>LAB: FILE PATH TRAVERSAL VALIDATION OF FILE EXTENSION WITH NULL BYTE BYPASS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="sidebar-card sidebar-download">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>PDF de la actividad</h3>
+        <p>Documento original del laboratorio técnico de File Path Traversal Null Byte Bypass.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/informe_P6_File_extension_with_null_byte.pdf" download>
+          Descargar Archivo
+        </a>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
+      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p>184937@upslp.edu.mx</p>
+    </div>
+    <div class="footer-col">
+      <h4>Redes académicas</h4>
+      <ul>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Estado del sitio</h4>
+      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

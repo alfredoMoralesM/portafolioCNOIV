@@ -11,6 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="../../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
 </head>
 <body>
 
@@ -20,11 +24,13 @@
 <header class="site-header" id="inicio">
   <div class="header-bar">
     <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
       <div class="brand-text">
-        <!-- EDITAR: nombre y alias del estudiante -->
-        <span class="brand-name">Christian Alfredo Morales Meza </span>
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
         <span class="brand-alias">// Alfred</span>
-        <span class="brand-course">CNO IV — Seguridad Informática</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
       </div>
     </div>
 
@@ -34,22 +40,24 @@
 
     <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
       <ul>
-        <li><a href="/portafolioCNOIV/index.html" class="active">Inicio</a></li>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
         <li class="has-dropdown">
           <span class="dropdown-toggle" aria-haspopup="true">
             Actividades <span class="chev" aria-hidden="true">▾</span>
           </span>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><a class="dropdown-link active" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
             <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 2 <em>· próximamente</em></span></li>
             <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
           </ul>
         </li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos <em>· próximamente</em></span></li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados <em>· próximamente</em></span></li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos </span></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
         <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
       </ul>
     </nav>
+
   </div>
 
   <div class="header-meta">
@@ -61,6 +69,7 @@
       <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
     </div>
   </div>
+
 </header>
 
 <main id="contenido">
@@ -96,14 +105,21 @@
         <span class="activity-item-arrow" aria-hidden="true">→</span>
       </a>
 
-      <span class="activity-item is-disabled" aria-disabled="true" title="Disponible próximamente">
+      <a class="activity-item" href="/portafolioCNOIV/index.html">
         <span class="activity-item-index">Act 2</span>
         <div class="activity-item-body">
-          <h3>Próxima actividad</h3>
-          <p>Esta actividad se publicará más adelante en el curso.</p>
+          <h3>ACTIVIDAD 02 - Portafolio del curso</h3>
+          <p>Diseño, desarrollo y despliegue del portafolio digital del curso: header,
+          presentación, perfil, información técnica y formulario de contacto con
+          autorespuesta, publicado en GitHub Pages con HTTPS.</p>
+          <ul class="activity-item-tags">
+            <li>Portafolio</li>
+            <li>GitHub Pages</li>
+            <li>EmailJS</li>
+          </ul>
         </div>
-        <span class="activity-item-status">Próximamente</span>
-      </span>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
 
       <a class="activity-item" href="/portafolioCNOIV/actividades/parcial1/act3.html">
         <span class="activity-item-index">Act 3</span>
@@ -111,31 +127,160 @@
           <h3>ACTIVIDAD 03 - No presiones Esc… todavía <code>pynput</code></h3>
           <p>Implementar y documentar, en un entorno de laboratorio controlado, un
           programa basado en event hooks y callbacks que permita registrar eventos
-          de teclado</p>
+          de teclado.</p>
           <ul class="activity-item-tags">
-            <li>Python </li>
+            <li>Python</li>
             <li>pynput</li>
           </ul>
         </div>
         <span class="activity-item-arrow" aria-hidden="true">→</span>
       </a>
 
-    <a class="activity-item" href="/portafolioCNOIV/actividades/parcial1/act4.html">
-      <span class="activity-item-index">Act 4</span>
-      <div class="activity-item-body">
-        <h3>ACTIVIDAD 04 - Una página demasiado convincente</h3>
-        <p>Implementar y analizar, en un entorno de laboratorio aislado, una
-        simulación de phishing con el módulo Credential Harvester de Social-Engineer
-        Toolkit (SET), para reconocer los indicadores técnicos y visuales de una
-        página fraudulenta.</p>
-        <ul class="activity-item-tags">
-          <li>SET</li>
-          <li>Phishing</li>
-          <li>Kali Linux</li>
-        </ul>
-      </div>
-      <span class="activity-item-arrow" aria-hidden="true">→</span>
-    </a>
+      <a class="activity-item" href="/portafolioCNOIV/actividades/parcial1/act4.html">
+        <span class="activity-item-index">Act 4</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 04 - Una página demasiado convincente</h3>
+          <p>Implementar y analizar, en un entorno de laboratorio aislado, una
+          simulación de phishing con el módulo Credential Harvester de Social-Engineer
+          Toolkit (SET), para reconocer los indicadores técnicos y visuales de una
+          página fraudulenta.</p>
+          <ul class="activity-item-tags">
+            <li>SET</li>
+            <li>Phishing</li>
+            <li>Kali Linux</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/actividades/parcial1/act5.html">
+        <span class="activity-item-index">Act 5</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 05 - Ingeniería Social (el arte del engaño)</h3>
+          <p>Cuestionario basado en un video sobre un caso real de estafa con
+          criptomonedas (caso Lam Malone), aplicando conceptos de ingeniería social
+          y sus técnicas de manipulación.</p>
+          <ul class="activity-item-tags">
+            <li>Ingeniería Social</li>
+            <li>Fraude</li>
+            <li>Criptomonedas</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/hall-of-fame.html">
+        <span class="activity-item-index">Act 6</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 06 - Road to Hall of Fame</h3>
+          <p>Diseñar e integrar en el Portafolio Digital un nuevo módulo web denominado
+          ROAD TO HALL OF FAME, que estructure y presente de forma visual, organizada y
+          profesional los laboratorios, incorporando evidencias técnicas, navegación
+          funcional y un botón de descarga del documento completo.</p>
+          <ul class="activity-item-tags">
+            <li>Hall of Fame</li>
+            <li>Documentación técnica</li>
+            <li>Desarrollo Web</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P1_File_path_traversal.html">
+        <span class="activity-item-index">Act 7</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 07 - Lab: File Path Traversal Simple Case</h3>
+          <p>Informe técnico sobre la explotación de la vulnerabilidad de salto de
+          directorio (Path Traversal / Directory Traversal), recuperando el archivo
+          sensible <code>/etc/passwd</code> mediante la manipulación del parámetro
+          <code>filename</code> en la carga de imágenes.</p>
+          <ul class="activity-item-tags">
+            <li>Path Traversal</li>
+            <li>Linux</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P2_Traversal_sequences_blocked.html">
+        <span class="activity-item-index">Act 8</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 08 - Lab: Traversal Sequences Blocked with Absolute Path Bypass</h3>
+          <p>Informe técnico sobre el bypass de filtros defensivos que bloquean
+          secuencias relativas (../) mediante el uso de rutas absolutas directas desde
+          la raíz del sistema de archivos para acceder a <code>/etc/passwd</code>.</p>
+          <ul class="activity-item-tags">
+            <li>Absolute Path</li>
+            <li>Bypass</li>
+            <li>Control de Acceso</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P3_Traversal_sequences_stripped.html">
+        <span class="activity-item-index">Act 9</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 09 - Lab: Traversal Sequences Stripped Non-Recursively</h3>
+          <p>Informe técnico sobre la evasión de filtros de sanitización no recursivos
+          mediante la inyección de secuencias de salto anidadas (....//) para reconstruir
+          el payload destructivo tras la supresión de caracteres.</p>
+          <ul class="activity-item-tags">
+            <li>Non-Recursive</li>
+            <li>Nested Payloads</li>
+            <li>Sanitization Bypass</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P4_Superfluous_URL_decode.html">
+        <span class="activity-item-index">Act 10</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 10 - Lab: Traversal Sequences Stripped with Superfluous URL-Decode</h3>
+          <p>Informe técnico sobre la explotación de salto de directorio evadiendo filtros de
+          entrada mediante doble codificación URL (%252e) y decodificación redundante o superflua
+          en la capa del servidor web.</p>
+          <ul class="activity-item-tags">
+            <li>Double Encoding</li>
+            <li>Superfluous Decode</li>
+            <li>WAF Bypass</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P5_Validation_of_start_of_path.html">
+        <span class="activity-item-index">Act 11</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 11 - Lab: Validation of Start of Path</h3>
+          <p>Informe técnico sobre la evasión de validaciones de inicio de ruta (starts-with)
+          al mantener el prefijo base autorizado (/var/www/images/) y concatenar secuencias
+          relativas de retroceso para escapar del directorio confinado.</p>
+          <ul class="activity-item-tags">
+            <li>Prefix Validation</li>
+            <li>Start of Path</li>
+            <li>Path Traversal</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="activity-item" href="/portafolioCNOIV/labs/informes_html/P6_File_extension_with_null_byte.html">
+        <span class="activity-item-index">Act 12</span>
+        <div class="activity-item-body">
+          <h3>ACTIVIDAD 12 - Lab: Validation of File Extension with Null Byte Bypass</h3>
+          <p>Informe técnico sobre la inyección de un terminador de byte nulo (%00) para truncar la
+          lectura de rutas en llamadas nativas a la API del sistema de archivos, eludiendo la validación
+          de extensión requerida (.jpg).</p>
+          <ul class="activity-item-tags">
+            <li>Null Byte (%00)</li>
+            <li>Extension Bypass</li>
+            <li>String Truncation</li>
+          </ul>
+        </div>
+        <span class="activity-item-arrow" aria-hidden="true">→</span>
+      </a>
 
     </div>
   </section>
@@ -145,9 +290,8 @@
 <!-- ===================== FOOTER ===================== -->
 <footer class="site-footer">
   <div class="footer-grid">
-    <div>
-      <span class="brand-mark" aria-hidden="true">◈</span>
-      <p class="footer-course">CNO IV — Seguridad Informática</p>
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
       <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
     </div>
     <div class="footer-col">
@@ -157,8 +301,9 @@
     <div class="footer-col">
       <h4>Redes académicas</h4>
       <ul>
-        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
       </ul>
     </div>
     <div class="footer-col">

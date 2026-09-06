@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portafolio Digital — CNO IV Seguridad Informática</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📁</text></svg>">
 <meta name="description" content="Portafolio digital académico de la asignatura CNO IV – Seguridad Informática. Evidencias, actividades y perfil del estudiante.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
 </head>
 <body>
 
@@ -21,11 +24,13 @@
 <header class="site-header" id="inicio">
   <div class="header-bar">
     <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
       <div class="brand-text">
-        <!-- EDITAR: nombre y alias del estudiante -->
-        <span class="brand-name">Christian Alfredo Morales Meza </span>
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
         <span class="brand-alias">// Alfred</span>
-        <span class="brand-course">CNO IV — Seguridad Informática</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
       </div>
     </div>
 
@@ -35,7 +40,7 @@
 
     <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
       <ul>
-        <li><a href="#inicio" class="active">Inicio</a></li>
+        <li><a href="/portafolioCNOIV/index.html" class="active">Inicio</a></li>
         <li class="has-dropdown">
           <span class="dropdown-toggle" aria-haspopup="true">
             Actividades <span class="chev" aria-hidden="true">▾</span>
@@ -46,16 +51,17 @@
             <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
           </ul>
         </li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos <em>· próximamente</em></span></li>
-        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados <em>· próximamente</em></span></li>
-        <li><a href="#contacto">Contacto</a></li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos </span></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
       </ul>
     </nav>
+
   </div>
 
-  <div class="header-meta">
+    <div class="header-meta">
     <div class="header-meta-inner">
-      <!-- EDITAR: institución y periodo -->
       <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
       <span class="dot" aria-hidden="true">•</span>
       <span><strong>Periodo:</strong> Ago – Dic 2026</span>
@@ -63,6 +69,7 @@
       <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
     </div>
   </div>
+
 </header>
 
 <main id="contenido">
@@ -202,6 +209,21 @@
     </div>
   </section>
 
+  <!-- ===================== HALL OF FAME — ACCESO AL MAPA ===================== -->
+  <section class="section" id="hall-of-fame">
+    <div class="section-head">
+      <span class="section-index">Hall of Fame</span>
+      <h2>Mapa de laboratorios</h2>
+    </div>
+    <div class="download-card">
+      <div>
+        <h3>Recorrido completo por niveles</h3>
+        <p>Cada nivel es una práctica de laboratorio superada. Explora el mapa visual y accede al informe de cada una, en PDF o en HTML.</p>
+      </div>
+      <a class="btn btn-primary" href="/portafolioCNOIV/labs/hall-of-fame.html">Ver mapa completo <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
   <!-- ===================== CONTACTO ===================== -->
   <section class="section" id="contacto">
     <div class="section-head">
@@ -248,8 +270,8 @@
 <!-- ===================== FOOTER ===================== -->
 <footer class="site-footer">
   <div class="footer-grid">
-    <div>
-      <p class="footer-course">CNO IV — Seguridad Informática</p>
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
       <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
     </div>
     <div class="footer-col">
@@ -259,8 +281,9 @@
     <div class="footer-col">
       <h4>Redes académicas</h4>
       <ul>
-        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
       </ul>
     </div>
     <div class="footer-col">

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB: FILE PATH TRAVERSAL TRAVERSAL SEQUENCES BLOCKED WITH ABSOLUTE PATH BYPASS</title>
+<meta name="description" content="Informe técnico y resolución del laboratorio File Path Traversal Traversal Sequences Blocked with Absolute Path Bypass - Fundamentos de Ciberseguridad.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+</head>
+<body>
+
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="inicio">
+  <div class="header-bar">
+    <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
+        <span class="brand-alias">// Alfred</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
+      <ul>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
+        <li class="has-dropdown">
+          <span class="dropdown-toggle" aria-haspopup="true">
+            Actividades <span class="chev" aria-hidden="true">▾</span>
+          </span>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 2 <em>· próximamente</em></span></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
+          </ul>
+        </li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos </span></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="header-meta">
+    <div class="header-meta-inner">
+      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
+    </div>
+  </div>
+
+</header>
+
+<main id="contenido">
+
+  <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
+  <section class="activity-hero">
+    <span class="section-index">Laboratorio Práctico</span>
+    <h1>LAB: FILE PATH TRAVERSAL TRAVERSAL SEQUENCES BLOCKED WITH ABSOLUTE PATH BYPASS</h1>
+    <p class="hero-lede">
+      Informe técnico sobre la explotación de la vulnerabilidad de salto de directorio mediante el bypass de secuencias relativas bloqueadas utilizando rutas absolutas para leer el archivo sensible <code>/etc/passwd</code>.
+    </p>
+  </section>
+
+  <!-- ===================== CONTENIDO + SIDEBAR FIJA ===================== -->
+  <div class="activity-layout">
+
+    <div class="activity-main">
+
+      <!-- ===================== 01. FICHA DEL LABORATORIO ===================== -->
+      <section class="section" id="ficha">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <h2>Ficha del laboratorio</h2>
+        </div>
+        <p class="body-copy">
+          <strong>Laboratorio:</strong> LAB: FILE PATH TRAVERSAL TRAVERSAL SEQUENCES BLOCKED WITH ABSOLUTE PATH BYPASS<br>
+          <strong>Nivel:</strong> Apprentice<br>
+          <strong>Tipo de explotación:</strong> File Path Traversal con bypass de rutas absolutas
+        </p>
+      </section>
+
+      <!-- ===================== 02. OBJETIVO DEL LABORATORIO ===================== -->
+      <section class="section" id="objetivo">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <h2>Objetivo del laboratorio</h2>
+        </div>
+        <p class="body-copy">
+          Explotar la vulnerabilidad de salto de directorio para leer el contenido del archivo sensible /etc/passwd en el servidor backend.
+        </p>
+      </section>
+
+      <!-- ===================== 03. EXPLICACIÓN TÉCNICA DE LA VULNERABILIDAD ===================== -->
+      <section class="section" id="explicacion-tecnica">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <h2>Explicación técnica de la vulnerabilidad</h2>
+        </div>
+        <p class="body-copy">
+          La causa raíz de esta vulnerabilidad radica en que la aplicación web procesa de manera insegura la entrada provista por el usuario para interactuar directamente con la API del sistema de archivos mediante funciones subyacentes del backend. Específicamente, aunque los desarrolladores intentaron mitigar ataques de recorrido de directorios bloqueando o sanitizando secuencias relativas (como ../), el mecanismo de validación es insuficiente. Al recibir una ruta absoluta que comienza desde la raíz del sistema operativo (por ejemplo, /etc/passwd), la aplicación omite la concatenación con el directorio base previsto y procede a abrir directamente el archivo solicitado. Esto ocurre porque el motor del sistema operativo interpreta la barra diagonal inicial como el directorio raíz, permitiendo el acceso indebido.
+        </p>
+        <p class="body-copy">
+          En cuanto al marco CIA, esta vulnerabilidad compromete gravemente la Confidencialidad al permitir la lectura de información confidencial del sistema operativo y de los usuarios registrados. Desde la perspectiva de OWASP Top 10, se clasifica en A01:2021-Broken Access Control.
+        </p>
+        <p class="body-copy">
+          Su impacto y riesgo real en un entorno de producción incluyen la exposición de credenciales, información de configuración del sistema y archivos de código fuente, facilitando ataques subsecuentes de mayor criticidad.
+        </p>
+      </section>
+
+      <!-- ===================== 04. PROCEDIMIENTO PASO A PASO ===================== -->
+      <section class="section" id="procedimiento">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <h2>Procedimiento paso a paso</h2>
+        </div>
+        <ul class="concept-list">
+          <li>El laboratorio se abordó utilizando un enfoque metodológico estructurado con el apoyo de Burp Suite como proxy de intercepción. En primer lugar, se configuró el navegador integrado para enrutar el tráfico web y verificar el funcionamiento general de la tienda en línea.</li>
+          <li>Durante la navegación por el catálogo de productos, se observó que las imágenes se cargaban mediante solicitudes HTTP que incluían el parámetro filename, el cual apunta a un directorio de imágenes específico en el servidor backend.</li>
+          <li>Para analizar el comportamiento de la aplicación ante entradas maliciosas, una de las peticiones de imágenes fue interceptada y reenviada a la herramienta Repeater.</li>
+          <li>Inicialmente, se intentó aplicar un ataque clásico de Path Traversal utilizando secuencias relativas de puntos y barras diagonales (../../../etc/passwd), las cuales fueron bloqueadas por el sistema de defensa de la aplicación, devolviendo un código de error HTTP 400 y el mensaje 'No such file'.</li>
+          <li>Dado que las secuencias relativas estaban bloqueadas, se procedió a evaluar si el backend implementaba un bypass mediante rutas absolutas. Se modificó el parámetro filename para apuntar directamente a la ruta raíz del sistema utilizando /etc/passwd sin incluir secuencias de navegación previa.</li>
+          <li>Al enviar esta petición modificada a través del Repeater, el servidor procesó la ruta absoluta sin restricciones, devolviendo un código de estado HTTP 200 OK y el contenido completo del archivo /etc/passwd en la respuesta.</li>
+          <li>Finalmente, al actualizar la interfaz web principal, se confirmó la resolución exitosa del laboratorio mediante la notificación de 'Lab Solved'.</li>
+        </ul>
+      </section>
+
+      <!-- ===================== 05. EVIDENCIA DEL PROCEDIMIENTO ===================== -->
+      <section class="section" id="evidencia-procedimiento">
+        <div class="section-head">
+          <span class="section-index">05</span>
+          <h2>Evidencia del procedimiento</h2>
+        </div>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/01.png" alt="Verificación de intercepción en Burp Suite" loading="lazy">
+          <figcaption>Figura 1. Se inicia Burp Suite y se verifica que la intercepción de tráfico en el proxy se encuentre activa.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/02.png" alt="Acceso a la página principal del laboratorio" loading="lazy">
+          <figcaption>Figura 2. Se accede a la página principal del laboratorio de la Web Security Academy a través del navegador integrado.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/03.png" alt="Examen del historial HTTP" loading="lazy">
+          <figcaption>Figura 3. Se examina el historial HTTP del proxy para identificar las peticiones asociadas a la carga de imágenes.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/04.png" alt="Filtrado de peticiones en historial" loading="lazy">
+          <figcaption>Figura 4. Se revisa el flujo de peticiones filtrando el contenido estático y de imágenes en el historial del proxy.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/05.png" alt="Envío de petición a Repeater" loading="lazy">
+          <figcaption>Figura 5. Se selecciona la petición específica que maneja el parámetro filename y se envía a la herramienta Repeater.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/06.png" alt="Respuesta original del servidor" loading="lazy">
+          <figcaption>Figura 6. Se analiza la respuesta original del servidor al solicitar una imagen legítima del catálogo de productos.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/07.png" alt="Prueba de payload con secuencias relativas" loading="lazy">
+          <figcaption>Figura 7. Se prueba un payload de Path Traversal basado en secuencias relativas para intentar evadir el directorio base.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/08.png" alt="Mensaje de error HTTP 400" loading="lazy">
+          <figcaption>Figura 8. Se observa el mensaje de error HTTP 400 generado al bloquearse las secuencias de navegación relativa.</figcaption>
+        </figure>
+
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/pasos/09.png" alt="Introducción de la ruta absoluta" loading="lazy">
+          <figcaption>Figura 9. Se introduce la ruta absoluta del archivo objetivo para comprobar el mecanismo de bypass y obtener la respuesta exitosa.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== 06. EVIDENCIAS OBLIGATORIAS ===================== -->
+      <section class="section" id="evidencias-obligatorias">
+        <div class="section-head">
+          <span class="section-index">06</span>
+          <h2>Evidencias obligatorias</h2>
+        </div>
+
+        <h3>Request interceptado</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/evidencia/01_request.png" alt="Request interceptado" loading="lazy">
+          <figcaption>Figura 10. Request interceptado — Petición HTTP GET interceptada mostrando el parámetro filename con un nombre de imagen legítimo.</figcaption>
+        </figure>
+
+        <h3>Payload utilizado</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/evidencia/02_payload.png" alt="Payload utilizado" loading="lazy">
+          <figcaption>Figura 11. Payload utilizado — Modificación del parámetro filename utilizando la ruta absoluta /etc/passwd para burlar los filtros.</figcaption>
+        </figure>
+
+        <h3>Respuesta vulnerable</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/evidencia/03_respuesta.png" alt="Respuesta vulnerable" loading="lazy">
+          <figcaption>Figura 12. Respuesta vulnerable — Respuesta HTTP 200 OK del servidor mostrando de manera exitosa el contenido confidencial del archivo /etc/passwd.</figcaption>
+        </figure>
+
+        <h3>Confirmación de “Lab Solved”</h3>
+        <figure class="figure">
+          <img src="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/evidencia/04_lab_solved.png" alt="Confirmación de Lab Solved" loading="lazy">
+          <figcaption>Figura 13. Confirmación de “Lab Solved” — Pantalla principal del laboratorio mostrando la notificación de confirmación de 'Lab Solved'.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== 07. EXPLICACIÓN DEL PAYLOAD ===================== -->
+      <section class="section" id="explicacion-payload">
+        <div class="section-head">
+          <span class="section-index">07</span>
+          <h2>Explicación del payload</h2>
+        </div>
+        <p class="body-copy">
+          El payload utilizado en este laboratorio consiste en una ruta absoluta directamente apuntando al archivo sensible del sistema operativo: <code>/etc/passwd</code>.
+        </p>
+        <p class="body-copy">
+          A diferencia de los payloads tradicionales de Path Traversal que utilizan secuencias relativas (<code>../</code>) para retroceder niveles en la jerarquía de directorios, este enfoque omite por completo el uso de puntos y barras de navegación. El parámetro afectado es <code>filename</code>, el cual es procesado por el backend web.
+        </p>
+        <p class="body-copy">
+          El mecanismo de evasión se fundamenta en la debilidad de la lógica de validación del desarrollador, quien únicamente diseñó defensas contra el incremento de directorios relativos pero omitió restringir el uso de rutas que inician desde la raíz del sistema (<code>/</code>). Al recibir esta entrada, el sistema de archivos del servidor interpreta el slash inicial como el directorio raíz absoluto, ignorando cualquier carpeta de trabajo predeterminada y abriendo directamente el archivo solicitado para retornar su contenido en la respuesta HTTP.
+        </p>
+      </section>
+
+      <!-- ===================== 08. MITIGACIÓN RECOMENDADA ===================== -->
+      <section class="section" id="mitigacion">
+        <div class="section-head">
+          <span class="section-index">08</span>
+          <h2>Mitigación recomendada</h2>
+        </div>
+        <p class="body-copy">
+          Para mitigar eficazmente las vulnerabilidades de File Path Traversal y el bypass de rutas absolutas, es fundamental implementar una estrategia de defensa en profundidad:
+        </p>
+        <ul class="concept-list">
+          <li><strong>1. Evitar paso directo de entradas:</strong> Como primera medida de remediación en el código, se debe evitar en la medida de lo posible pasar entradas directamente proporcionadas por el usuario a APIs del sistema de archivos.</li>
+          <li><strong>2. Validación por lista blanca (Whitelisting):</strong> Si es estrictamente necesario, se debe implementar una validación estricta utilizando listas blancas de nombres de archivos permitidos o verificar que la entrada contenga exclusivamente caracteres alfanuméricos seguros.</li>
+          <li><strong>3. Canonicalización de rutas:</strong> Adicionalmente, se debe emplear la funcionalidad de canonicalización de rutas provista por el lenguaje de programación (por ejemplo, el método <code>getCanonicalPath()</code> en Java), asegurando que la ruta resultante comience exactamente dentro del directorio base autorizado.</li>
+          <li><strong>4. Principio de menor privilegio:</strong> A nivel de arquitectura y red, se recomienda aplicar el principio de menor privilegio sobre los permisos de lectura del usuario con el que se ejecuta el servidor web, restringiendo el acceso a archivos del sistema operativo como <code>/etc/passwd</code>.</li>
+          <li><strong>5. Implementación de WAF:</strong> Finalmente, es recomendable el uso de un Web Application Firewall (WAF) debidamente configurado para inspeccionar y bloquear patrones maliciosos de recorrido de directorios y rutas absolutas no autorizadas.</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- ===================== SIDEBAR FIJA: DATOS + DESCARGA ===================== -->
+    <aside class="activity-sidebar">
+      <div class="sidebar-card">
+        <h3>Datos de la actividad</h3>
+        <dl>
+          <div class="sidebar-meta-item">
+            <dt>Fecha</dt>
+            <dd>09/09/2026</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Laboratorio</dt>
+            <dd>LAB: FILE PATH TRAVERSAL TRAVERSAL SEQUENCES BLOCKED WITH ABSOLUTE PATH BYPASS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="sidebar-card sidebar-download">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>PDF de la actividad</h3>
+        <p>Documento original del laboratorio técnico de File Path Traversal Absolute Path Bypass.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/informe_P2_Traversal_sequences_blocked.pdf" download>
+          Descargar Archivo
+        </a>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
+      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p>184937@upslp.edu.mx</p>
+    </div>
+    <div class="footer-col">
+      <h4>Redes académicas</h4>
+      <ul>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Estado del sitio</h4>
+      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hall of Fame — Mapa de laboratorios | CNO IV Seguridad Informática</title>
+<meta name="description" content="Mapa visual de las prácticas de laboratorio del curso CNO IV – Seguridad Informática, con acceso a cada informe en PDF y HTML.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+</head>
+<body>
+
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="inicio">
+  <div class="header-bar">
+    <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
+        <span class="brand-alias">// Alfred</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
+      <ul>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
+        <li class="has-dropdown">
+          <span class="dropdown-toggle" aria-haspopup="true">
+            Actividades <span class="chev" aria-hidden="true">▾</span>
+          </span>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 2 <em>· próximamente</em></a></li>
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
+          </ul>
+        </li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html" class="active">Hall of Fame</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Proyectos </span></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="header-meta">
+    <div class="header-meta-inner">
+      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
+    </div>
+  </div>
+
+</header>
+
+<main id="contenido">
+
+  <!-- ===================== INTRO ===================== -->
+  <section class="activity-hero">
+    <p class="breadcrumb"><a href="/portafolioCNOIV/index.html">Inicio</a> / <span>Hall of Fame</span></p>
+    <p class="eyebrow">Hall of Fame</p>
+    <h1>Mapa de laboratorios</h1>
+    <p class="hero-lede">
+      Cada práctica de laboratorio es una parada en este camino. Los niveles superados liberan su
+      informe técnico, descargable en PDF o disponible como página HTML.
+    </p>
+  </section>
+
+  <!-- ===================== MAPA DE NIVELES (ROADMAP) ===================== -->
+  <section class="section lab-map-section" id="mapa">
+
+    <ol class="roadmap" aria-label="Mapa de niveles de laboratorio, en orden de avance">
+
+      <!-- LAB 01 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">01</div>
+          <h3>File Path Traversal: Simple Case</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Recuperación del archivo /etc/passwd mediante manipulación directa de secuencias relativas en el parámetro filename.</p>
+          <p class="roadmap-tools">Path Traversal · Burp Suite · Repeater</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P1_File_path_traversal/informe_P1_File_path_traversal.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P1_File_path_traversal.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- LAB 02 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">02</div>
+          <h3>Traversal Sequences Blocked (Absolute Path Bypass)</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Evasión de filtros que bloquean secuencias relativas utilizando rutas absolutas directas desde la raíz.</p>
+          <p class="roadmap-tools">Absolute Path Bypass · Burp Suite · Filter Evasion</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P2_Traversal_sequences_blocked/informe_P2_Traversal_sequences_blocked.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P2_Traversal_sequences_blocked.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- LAB 03 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">03</div>
+          <h3>Traversal Sequences Stripped Non-Recursively</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Bypass de sanitización simple no recursiva mediante el colapso de secuencias de salto anidadas.</p>
+          <p class="roadmap-tools">Nested Sequences · Sanitization Bypass · Burp Suite</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P3_Traversal_sequences_stripped/informe_P3_Traversal_sequences_stripped.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P3_Traversal_sequences_stripped.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- LAB 04 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">04</div>
+          <h3>Superfluous URL-Decode</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Evasión de filtros mediante doble codificación URL aprovechando la decodificación redundante del backend.</p>
+          <p class="roadmap-tools">Double URL Encoding · Superfluous Decode · Burp Suite</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P4_Superfluous_URL_decode/informe_P4_Superfluous_URL_decode.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P4_Superfluous_URL_decode.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- LAB 05 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">05</div>
+          <h3>Validation of Start of Path</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Bypass de validación de inicio de ruta manteniendo el prefijo base requerido y concatenando secuencias relativas.</p>
+          <p class="roadmap-tools">Prefix Validation Bypass · Path Traversal · Burp Suite</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P5_Validation_of_start_of_path/informe_P5_Validation_of_start_of_path.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P5_Validation_of_start_of_path.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- LAB 06 -->
+      <li>
+        <div class="roadmap-step" data-status="done">
+          <div class="roadmap-num">06</div>
+          <h3>Validation of File Extension with Null Byte Bypass</h3>
+          <p class="roadmap-status">✔ superado</p>
+          <p class="roadmap-desc">Inyección de byte nulo (%00) para truncar la ruta en llamadas del sistema de archivos eludiendo la validación de extensión.</p>
+          <p class="roadmap-tools">Null Byte Injection (%00) · Truncation Bypass · Burp Suite</p>
+          <div class="roadmap-actions">
+            <a class="btn btn-ghost btn-sm" href="/portafolioCNOIV/labs/P6_File_extension_with_null_byte/informe_P6_File_extension_with_null_byte.pdf" download>
+              <span aria-hidden="true">⬇</span> PDF
+            </a>
+            <a class="btn btn-primary btn-sm" href="/portafolioCNOIV/labs/informes_html/P6_File_extension_with_null_byte.html">
+              Ver informe <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- META FINAL -->
+      <li>
+        <div class="roadmap-step" data-status="final">
+          <div class="roadmap-num">★</div>
+          <h3>hall_of_fame.log</h3>
+          <p class="roadmap-status">★ meta</p>
+          <p class="roadmap-desc">Se han completado y documentado con éxito todos los laboratorios de la serie File Path Traversal.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
+      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p>184937@upslp.edu.mx</p>
+    </div>
+    <div class="footer-col">
+      <h4>Redes académicas</h4>
+      <ul>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Estado del sitio</h4>
+      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+
+</body>
+</html>
