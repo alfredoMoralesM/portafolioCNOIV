@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad 13 - Red Team Report: Pentesting de My File Server 1</title>
+<meta name="description" content="Parcial 2, Actividad 13: Reporte profesional de prueba de penetración en entorno de caja negra sobre la máquina vulnerable My File Server 1.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+</head>
+<body>
+
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="inicio">
+  <div class="header-bar">
+    <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
+        <span class="brand-alias">// Alfred</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
+      <ul>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
+        <li class="has-dropdown">
+          <span class="dropdown-toggle" aria-haspopup="true">
+            Actividades <span class="chev" aria-hidden="true">▾</span>
+          </span>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><a class="dropdown-link active" href="/portafolioCNOIV/actividades/parcial2/actsP2.html">Parcial 2</a></li>            
+            <li><span class="disabled-link" aria-disabled="true" title="Disponible próximamente">Parcial 3 <em>· próximamente</em></span></li>
+          </ul>
+        </li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><a href="/portafolioCNOIV/proyectos/proyectos.html">Proyectos</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="header-meta">
+    <div class="header-meta-inner">
+      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
+    </div>
+  </div>
+
+</header>
+
+<main id="contenido">
+
+  <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
+  <section class="activity-hero">
+    <span class="section-index">Parcial 2 · Actividad 13</span>
+    <h1>Red Team Report</h1>
+    <h1><code>Pentesting de My File Server 1</code></h1>
+    <p class="hero-lede">
+      Ejercicio de prueba de penetración en entorno de caja negra sobre la máquina virtual 
+      <em>My File Server: 1</em> (VulnHub), integrando fases de reconocimiento, enumeración de servicios, 
+      explotación de configuraciones débiles y escalada de privilegios a nivel de kernel.
+    </p>
+  </section>
+
+  <!-- ===================== CONTENIDO + SIDEBAR FIJA ===================== -->
+  <div class="activity-layout">
+
+    <div class="activity-main">
+
+      <!-- ===================== 1. RESUMEN EJECUTIVO ===================== -->
+      <section class="section" id="resumen-ejecutivo">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <h2>Executive Summary (Resumen Ejecutivo)</h2>
+        </div>
+        <p class="body-copy">
+          Como parte del ejercicio académico de la Actividad 13, se realizó un ejercicio de pentesting de caja negra sobre la máquina vulnerable "My File Server: 1", la cual simula un entorno corporativo dedicado a servicios de almacenamiento y archivos compartidos (FTP, SMB/NFS y un portal web informativo). El objetivo fue identificar, explotar y documentar las vulnerabilidades presentes, actuando como analista de Red Team contratado por la organización ficticia dueña del sistema.
+        </p>
+        <p class="body-copy">
+          El resultado del ejercicio fue un compromiso total del sistema (root), logrado en un tiempo relativamente corto y sin necesidad de herramientas de fuerza bruta. La cadena de ataque combinó fallas de configuración de servicios de archivos con una vulnerabilidad crítica del kernel Linux:
+        </p>
+        <ul class="concept-list">
+          <li><strong>Acceso anónimo habilitado</strong> en los servicios FTP (puertos 21 y 2121) y SMB, incluyendo un recurso compartido (<code class="inline-code">smbdata</code>) con permisos de lectura y escritura sin autenticación.</li>
+          <li><strong>Divulgación de información sensible:</strong> credenciales válidas (<code class="inline-code">smbuser:rootroot1</code>) se encontraron en texto plano dentro de un archivo público del servidor web (<code class="inline-code">/readme.txt</code>).</li>
+          <li><strong>Uso de las credenciales</strong> obtenidas para escribir una clave pública SSH como <code class="inline-code">authorized_keys</code> del usuario <code class="inline-code">smbuser</code>, logrando así acceso remoto interactivo persistente sin necesidad de contraseña.</li>
+          <li><strong>Escalada de privilegios a root</strong> explotando <strong>CVE-2016-5195 (DirtyCOW)</strong>, una vulnerabilidad de condición de carrera en el subsistema de memoria del kernel Linux 3.10, confirmada mediante la obtención del archivo <code class="inline-code">/root/proof.txt</code>.</li>
+        </ul>
+        <p class="body-copy">
+          El nivel de riesgo global del sistema se clasifica como CRÍTICO. La combinación de servicios mal configurados, ausencia de control de acceso y un kernel obsoleto sin parchear permite a cualquier atacante no autenticado en la red obtener control total del servidor en pocos pasos. Se recomienda remediación inmediata siguiendo las acciones descritas en la sección 9 de este informe, priorizando la actualización del kernel, la deshabilitación de accesos anónimos y la eliminación de credenciales expuestas.
+        </p>
+      </section>
+
+      <!-- ===================== 2. ALCANCE ===================== -->
+      <section class="section" id="alcance">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <h2>Alcance (Scope)</h2>
+        </div>
+        <h3>2.1 Objetivo del ejercicio</h3>
+        <p class="body-copy">
+          Evaluar el nivel de exposición y el riesgo de seguridad de la máquina "My File Server: 1" mediante una metodología estructurada de pruebas de penetración, documentando hallazgos técnicos, evidencia, análisis de impacto y recomendaciones de remediación.
+        </p>
+
+        <h3>2.2 Activo evaluado</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Campo</th><th>Detalle</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Nombre de la máquina</td><td>My File Server: 1 (VulnHub)</td></tr>
+              <tr><td>Origen</td><td><a href="https://download.vulnhub.com/myfileserver/My_file_server_1.ova" target="_blank" rel="noopener">https://download.vulnhub.com/myfileserver/My_file_server_1.ova</a></td></tr>
+              <tr><td>Dirección IP objetivo</td><td>192.168.56.104</td></tr>
+              <tr><td>Máquina atacante</td><td>Kali Linux - 192.168.56.105 (red Host-Only VirtualBox)</td></tr>
+              <tr><td>Sistema operativo víctima</td><td>CentOS 7 (kernel Linux 3.10.0-229.el7.x86_64)</td></tr>
+              <tr><td>Tipo de prueba</td><td>Caja negra (Black-box), sin credenciales previas</td></tr>
+              <tr><td>Entorno</td><td>Laboratorio aislado (red Host-Only), sin conexión a producción</td></tr>
+              <tr><td>Duración aproximada</td><td>06 horas 30 minutos</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>2.3 Fuera de alcance</h3>
+        <ul class="concept-list">
+          <li>Ataques de denegación de servicio (DOS/DDoS).</li>
+          <li>Ingeniería social o ataques dirigidos a personas.</li>
+          <li>Cualquier sistema distinto a la máquina víctima definida, incluyendo infraestructura de red real.</li>
+          <li>Pruebas destructivas que comprometan la integridad del laboratorio más allá de lo necesario para validar el hallazgo.</li>
+        </ul>
+      </section>
+
+      <!-- ===================== 3. METODOLOGÍA APLICADA ===================== -->
+      <section class="section" id="metodologia">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <h2>Metodología Aplicada</h2>
+        </div>
+        <p class="body-copy">
+          El ejercicio se desarrolló siguiendo una adaptación de las fases del PTES (Penetration Testing Execution Standard), en línea con los lineamientos de la asignatura. Las fases aplicadas fueron:
+        </p>
+        <ul class="concept-list">
+          <li><strong>Reconocimiento:</strong> identificación del objetivo activo en la red mediante descubrimiento de host.</li>
+          <li><strong>Enumeración:</strong> identificación de puertos, servicios, versiones y recursos compartidos expuestos.</li>
+          <li><strong>Explotación:</strong> obtención de acceso inicial aprovechando configuraciones débiles y credenciales expuestas.</li>
+          <li><strong>Escalada de privilegios:</strong> elevación de un usuario estándar a root mediante una vulnerabilidad del kernel.</li>
+          <li><strong>Post-explotación:</strong> confirmación del compromiso total del sistema.</li>
+          <li><strong>Análisis y reporte:</strong> evaluación de impacto (modelo CIA) y elaboración de recomendaciones.</li>
+        </ul>
+
+        <h3>3.1 Herramientas utilizadas</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Herramienta</th><th>Propósito</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>netdiscover</td><td>Descubrimiento de hosts activos en la red local (ARP)</td></tr>
+              <tr><td>nmap</td><td>Escaneo de puertos, detección de versión de servicios y scripts NSE</td></tr>
+              <tr><td>ftp (cliente)</td><td>Verificación de acceso y transferencia de archivos</td></tr>
+              <tr><td>smbclient/smbmap</td><td>Enumeración de recursos compartidos SMB y permisos efectivos</td></tr>
+              <tr><td>nikto</td><td>Escaneo de vulnerabilidades y archivos expuestos en el servicio web</td></tr>
+              <tr><td>ssh-keygen/ssh</td><td>Generación de par de llaves y acceso remoto autenticado por llave</td></tr>
+              <tr><td>gcc</td><td>Compilación del exploit de escalada de privilegios</td></tr>
+              <tr><td>CVE-2016-5195 (DirtyCOW)</td><td>Exploit de escalada de privilegios a nivel de kernel</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 4. FASES DE RECONOCIMIENTO ===================== -->
+      <section class="section" id="reconocimiento">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <h2>Fases de Reconocimiento</h2>
+        </div>
+        <p class="body-copy">
+          El primer paso consistió en identificar la dirección IP de la máquina víctima dentro del segmento de red Host-Only compartido con la máquina atacante (Kali Linux), utilizando la herramienta netdiscover para realizar un barrido ARP.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/01.png" alt="Ejecución de netdiscover sobre el segmento de red Host-Only para descubrir hosts activos" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 1. Ejecución de netdiscover sobre el segmento de red Host-Only (192.168.56.0/24) para descubrir hosts activos.</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/02.png" alt="Resultado del barrido ARP con netdiscover" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 2. Resultado del barrido ARP: se detectan tres hosts activos en el segmento, identificados por su dirección IP y vendor de MAC (VirtualBox).</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          La dirección IP 192.168.56.104 se identificó como la máquina víctima (el vendor MAC "PCS Systemtechnik GmbH" corresponde a VirtualBox), quedando establecida como el objetivo para el resto del ejercicio.
+        </p>
+      </section>
+
+      <!-- ===================== 5. ENUMERACIÓN ===================== -->
+      <section class="section" id="enumeracion">
+        <div class="section-head">
+          <span class="section-index">05</span>
+          <h2>Enumeración</h2>
+        </div>
+        
+        <h3>5.1 Escaneo de puertos y servicios</h3>
+        <p class="body-copy">
+          Se ejecutó un escaneo completo de puertos (-p-) con detección de versión (-sV) sobre los 65,535 puertos TCP, con el fin de identificar todos los servicios expuestos, incluyendo aquellos en puertos no estándar.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/03.png" alt="Resultado de nmap -p- -sV" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 3. Resultado de nmap -p- -sV: ocho puertos abiertos, incluyendo dos servicios FTP (21 y 2121), SSH, HTTP, SMB y servicios asociados a NFS (rpcbind, nfs_acl, mountd).</figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Puerto</th><th>Servicio</th><th>Versión</th><th>Relevancia</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>21/tcp</td><td>FTP</td><td>vsftpd 3.0.2</td><td>Acceso anónimo confirmado, directorio de escritura</td></tr>
+              <tr><td>22/tcp</td><td>SSH</td><td>OpenSSH 7.4</td><td>Vector de acceso inicial mediante inyección de llave</td></tr>
+              <tr><td>80/tcp</td><td>HTTP</td><td>Apache 2.4.6 (CentOS)</td><td>Credenciales expuestas en archivo público</td></tr>
+              <tr><td>111/tcp</td><td>rpcbind</td><td>RPC #100000</td><td>Soporte para NFS</td></tr>
+              <tr><td>445/tcp</td><td>SMB</td><td>Samba 4.9.1</td><td>Sesión nula y recurso compartido de escritura anónima</td></tr>
+              <tr><td>2049/tcp</td><td>NFS</td><td>v3</td><td>Exportación de directorios sin autenticación</td></tr>
+              <tr><td>2121/tcp</td><td>FTP</td><td>ProFTPD 1.3.5</td><td>Segundo servicio FTP con acceso anónimo</td></tr>
+              <tr><td>20048/tcp</td><td>mountd</td><td>RPC #100005</td><td>Parte del servicio NFS</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="body-copy">
+          El banner de Apache confirmó que el sistema operativo base es CentOS. Esta pista, junto con la antigüedad de las versiones de servicio detectadas, permitió anticipar que el kernel subyacente podría ser vulnerable a fallas de escalada de privilegios conocidas, hipótesis confirmada posteriormente en la sección 7.
+        </p>
+
+        <h3>5.2 Escaneo agresivo (nmap -A)</h3>
+        <p class="body-copy">
+          Se complementó el escaneo anterior con un análisis agresivo (-A), que combina detección de sistema operativo, versión de servicios y scripts de enumeración NSE, para obtener detalle adicional de cada servicio.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/04.png" alt="Salida de nmap -A parte 1" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 4. Salida de nmap -A (parte 1): el script ftp-anon confirma que el servicio FTP del puerto 21 permite login anónimo (código 230) y que el directorio pub es de escritura pública (writeable).</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/05.png" alt="Salida de nmap -A parte 2" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 5. Salida de nmap -A (parte 2, continuación del scroll): se listan los servicios SSH, HTTP (con el método TRACE señalado como potencialmente riesgoso) y los servicios RPC/NFS asociados.</figcaption>
+        </figure>
+
+        <ul class="concept-list">
+          <li><strong>Hallazgo H-01 / H-02 — FTP anónimo habilitado (puertos 21 y 2121):</strong> El script ftp-anon de Nmap confirmó que el servicio FTP del puerto 21 (vsftpd) permite inicio de sesión anónimo (código FTP 230), y que el directorio pub se reportó como writeable (permisos 777, drwxrwxrwx), lo que habilita la escritura de archivos arbitrarios sin autenticación. El mismo escaneo identificó un segundo servicio FTP (ProFTPD) en el puerto 2121, también con acceso anónimo habilitado.</li>
+          <li><strong>Hallazgo H-03 — SMB con firma de mensajes deshabilitada:</strong> El script smb-security-mode reportó message_signing: disabled (dangerous, but default), exponiendo el servicio a ataques de tipo SMB relay.</li>
+          <li><strong>Hallazgo H-04 — Método HTTP TRACE habilitado:</strong> El servicio web permite el método HTTP TRACE, lo cual puede facilitar ataques de Cross-Site Tracing (XST) en combinación con vulnerabilidades del lado del cliente.</li>
+        </ul>
+
+        <h3>5.3 Prueba de conexión FTP</h3>
+        <p class="body-copy">
+          Adicionalmente a la detección automática de login anónimo reportada por Nmap, se realizó una prueba de conexión directa a ambos servicios FTP (puertos 21 y 2121), utilizando un nombre de usuario de prueba sin privilegios (alfredo). El objetivo de esta prueba fue únicamente verificar el comportamiento de autenticación de ambos servicios ante credenciales no válidas.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/06.png" alt="Intento de conexión FTP puerto 21" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 6. Intento de conexión al servicio FTP del puerto 21 con el usuario de prueba alfredo. El servidor rechaza la autenticación (530 Login incorrect).</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/07.png" alt="Intento de conexión FTP puerto 2121" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 7. Intento equivalente contra el servicio FTP secundario (puerto 2121, ProFTPD) con el mismo usuario de prueba; la autenticación es rechazada de la misma manera.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          En ambos casos la conexión fue rechazada, confirmando que el acceso sin autenticación documentado en los hallazgos H-01 y H-02 depende específicamente del usuario reservado anonymous (tal como lo identificó el script ftp-anon de Nmap), y no de una falla generalizada de validación de credenciales en el servicio.
+        </p>
+
+        <h3>5.4 Enumeración de servicios SMB</h3>
+        <p class="body-copy">
+          Se enumeraron los recursos compartidos de Samba utilizando una sesión sin credenciales (sesión nula), tanto para listar los shares disponibles como para verificar los permisos efectivos sobre cada uno.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/08.png" alt="Listado de recursos compartidos SMB" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 8. Listado de recursos compartidos SMB obtenido con sesión anónima (smbclient -L): se identifican los shares print$, smbdata, smbuser e IPC$.</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/09.png" alt="Resultado de smbmap" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 9. Resultado de smbmap mostrando los permisos efectivos de sesión NULL sobre cada recurso: smbdata aparece con permisos READ, WRITE, mientras que smbuser y los demás recursos muestran NO ACCESS.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          <strong>Hallazgo H-05 — Sesión nula SMB con recurso compartido de escritura anónima:</strong> Con una sesión NULL (sin credenciales) se obtuvo acceso de lectura y escritura completo (READ, WRITE) sobre el recurso compartido smbdata. El recurso smbuser, en cambio, no permitió acceso anónimo (NO ACCESS), lo que sugería la existencia de credenciales específicas para dicho usuario, confirmadas en la siguiente sección.
+        </p>
+
+        <h3>5.5 Enumeración de directorios del servicio web</h3>
+        <p class="body-copy">
+          Se ejecutó Nikto contra el servicio HTTP en el puerto 80, identificando un archivo de nombre readme.txt accesible públicamente y potencialmente interesante.
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/10.png" alt="Inicio de ejecución de Nikto" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 10. Inicio de la ejecución de Nikto contra el servicio web (puerto 80) de la máquina víctima.</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/11.png" alt="Resultado de Nikto" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 11. Resultado de Nikto: se identifican cabeceras de seguridad ausentes, el método HTTP TRACE activo y, en particular, el archivo /readme.txt marcado como potencialmente interesante.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          Al acceder al archivo desde el navegador, se confirmó el contenido revelando una credencial en texto plano:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/12.png" alt="Contenido del archivo readme.txt" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 12. Contenido del archivo /readme.txt obtenido directamente desde el navegador en http://192.168.56.104/readme.txt, revelando la contraseña del usuario smbuser en texto plano.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          <strong>Hallazgo H-06 — Credenciales en texto plano expuestas vía HTTP (Crítico):</strong> El archivo reveló la credencial smbuser: rootroot1, correspondiente al usuario que en la sección anterior no tenía acceso anónimo al recurso SMB smbuser. Esta única falla de configuración compromete la confidencialidad del sistema, ya que dicha credencial resultó válida para el servicio FTP y sirvió como base para el acceso inicial descrito en la siguiente sección.
+        </p>
+      </section>
+
+      <!-- ===================== 6. EXPLOTACIÓN ===================== -->
+      <section class="section" id="explotacion">
+        <div class="section-head">
+          <span class="section-index">06</span>
+          <h2>Explotación</h2>
+        </div>
+        <p class="body-copy">
+          Con la credencial smbuser: rootroot1 obtenida en la fase de enumeración, se procedió a establecer un mecanismo de acceso remoto persistente mediante la inyección de una llave pública SSH en el directorio del usuario, aprovechando el acceso de escritura otorgado por el propio servicio FTP al autenticarse con credenciales válidas.
+        </p>
+
+        <h3>6.1 Generación del par de llaves SSH</h3>
+        <p class="body-copy">
+          Se generó un par de llaves SSH (tipo ED25519) sin frase de contraseña en la máquina atacante (Kali Linux), con el fin de automatizar el acceso remoto sin depender de contraseñas:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/13.png" alt="Generación del par de llaves SSH" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 13. Generación del par de llaves SSH con sudo ssh-keygen: se crea la llave privada en /root/.ssh/id_ed25519 y la pública en id_ed25519.pub, sin frase de contraseña.</figcaption>
+        </figure>
+
+        <h3>6.2 Carga de la llave pública como authorized_keys</h3>
+        <p class="body-copy">
+          Se inició sesión FTP utilizando la credencial smbuser: rootroot1 (en lugar de la sesión anónima), lo que otorgó acceso de escritura sobre el propio directorio home (/home/smbuser).
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/14.png" alt="Inicio de sesión FTP" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 14. Inicio de sesión FTP con la credencial smbuser: rootroot1 (230 Login successful).</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/15.png" alt="Creación de directorio .ssh" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 15. Dentro de la sesión autenticada: se confirma el directorio home (/home/smbuser), se crea el directorio .ssh (código 257) y se accede a él.</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/16.png" alt="Transferencia de authorized_keys" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 16. Carga del archivo id_ed25519.pub como authorized_keys dentro de /home/smbuser/.ssh mediante el comando put; la transferencia se completa correctamente (226 Transfer complete).</figcaption>
+        </figure>
+
+        <h3>6.3 Acceso remoto mediante autenticación por llave</h3>
+        <p class="body-copy">
+          Con la llave pública instalada como authorized_keys, se estableció una conexión SSH utilizando la llave privada correspondiente, logrando acceso interactivo sin necesidad de contraseña:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/17.png" alt="Conexión SSH exitosa" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 17. Conexión SSH exitosa como smbuser sin necesidad de contraseña, autenticada mediante la llave pública instalada; el título de la ventana (smbuser@fileserver) confirma la sesión activa en el sistema remoto.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          <strong>Hallazgo H-07 — Acceso inicial mediante inyección de llave SSH (Alto):</strong> La combinación de (a) una credencial válida obtenida por divulgación de información y (b) permisos de escritura del propio usuario sobre su directorio .ssh vía FTP, permitió establecer un mecanismo de acceso remoto persistente e interactivo sin depender nuevamente de la contraseña original. Este es el punto de acceso inicial (foothold) sobre el sistema operativo de la víctima.
+        </p>
+      </section>
+
+      <!-- ===================== 7. ESCALADA DE PRIVILEGIOS ===================== -->
+      <section class="section" id="escalada-privilegios">
+        <div class="section-head">
+          <span class="section-index">07</span>
+          <h2>Escalada de Privilegios</h2>
+        </div>
+        
+        <h3>7.1 Identificación de la versión del kernel</h3>
+        <p class="body-copy">
+          Una vez dentro del sistema con el usuario smbuser, se verificó la versión del kernel para identificar posibles vulnerabilidades de escalada de privilegios conocidas:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/18.png" alt="Resultado de uname -a" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 18. Resultado de uname -a dentro de la sesión SSH: kernel Linux 3.10.0-229.el7.x86_64, compilado en marzo de 2015.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          La versión 3.10.0-229.el7 (CentOS 7, compilada en 2015) corresponde a un kernel desactualizado y vulnerable a CVE-2016-5195, conocida como DirtyCOW.
+        </p>
+
+        <h3>7.2 CVE-2016-5195 - DirtyCOW</h3>
+        <p class="body-copy">
+          DirtyCOW es una vulnerabilidad de escalada de privilegios en el kernel de Linux que permite a un usuario local sin privilegios obtener acceso de escritura sobre asignaciones de memoria de solo lectura, explotando una condición de carrera (race condition) en la forma en que el subsistema de memoria maneja la ruptura de copy-on-write (COW) de mapeos de memoria privados de solo lectura. El exploit público utilizado (40616.c) aprovecha esta condición para sobrescribir un binario del sistema y obtener una shell con privilegios de root.
+        </p>
+
+        <h3>7.3 Transferencia y compilación del exploit</h3>
+        <p class="body-copy">
+          El código fuente del exploit se obtuvo del repositorio público de SecWiki (github.com/SecWiki/linux-kernel-exploits) y se transfirió a la víctima levantando un servidor HTTP temporal en la máquina atacante:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/19.png" alt="Servidor HTTP en máquina atacante" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 19. En la máquina atacante: confirmación del archivo 40616.c descargado y servidor HTTP temporal (python3 -m http.server 8080) iniciado para transferirlo a la víctima.</figcaption>
+        </figure>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/20.png" alt="Descarga de exploit por wget" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 20. Desde la sesión SSH en la víctima: descarga exitosa del exploit mediante wget contra la máquina atacante (192.168.56.105:8080).</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          El exploit se compiló directamente en la máquina víctima (requisito necesario, ya que debe enlazarse contra las bibliotecas del sistema objetivo):
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/21.png" alt="Compilación con gcc" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 21. Compilación del exploit en la máquina víctima (gcc 40616.c -o alfred -pthread). El compilador emite advertencias no bloqueantes por el uso de tipos en lseek(), propias del código original del exploit público.</figcaption>
+        </figure>
+
+        <h3>7.4 Confirmación del compromiso total (root)</h3>
+        <p class="body-copy">
+          Tras la ejecución del binario compilado, el propio exploit reporta su progreso (copia de respaldo del binario objetivo, condición de carrera y sobreescritura) y culmina entregando una shell con privilegios de root, confirmada al leer el archivo /root/proof.txt:
+        </p>
+
+        <figure class="figure" style="margin: 1.5rem 0;">
+          <img src="/portafolioCNOIV/actividades/parcial2/act14pasos/22.png" alt="Ejecución de exploit y lectura de proof.txt" loading="lazy" style="border-radius: 6px; border: 1px solid var(--border-color, #333);">
+          <figcaption>Figura 22. Ejecución del exploit DirtyCOW (./alfred): el programa sobrescribe /usr/bin/passwd y entrega una shell de root; se confirma el compromiso total leyendo /root/proof.txt.</figcaption>
+        </figure>
+
+        <p class="body-copy">
+          <strong>Hallazgo H-08 (enumerado como H-09 en texto original) — Escalada de privilegios vía DirtyCOW / CVE-2016-5195 (Crítico):</strong> La explotación exitosa de DirtyCOW confirma que el sistema operativo de la víctima no cuenta con los parches de seguridad correspondientes. Esto representa el hallazgo de mayor criticidad del ejercicio, ya que otorga control total (root) sobre el sistema a partir de cualquier acceso local, por mínimo que este sea.
+        </p>
+      </section>
+
+      <!-- ===================== 8. ANÁLISIS DE IMPACTO (MODELO CIA) ===================== -->
+      <section class="section" id="analisis-impacto">
+        <div class="section-head">
+          <span class="section-index">08</span>
+          <h2>Análisis de Impacto (Modelo CIA)</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Dimensión</th><th>Impacto y Detalle</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Confidencialidad</strong></td>
+                <td>Compromiso total. El atacante obtuvo acceso de lectura a la totalidad del sistema de archivos producto del acceso root final. Previamente ya se había filtrado información sensible (credenciales en texto plano).</td>
+              </tr>
+              <tr>
+                <td><strong>Integridad</strong></td>
+                <td>Compromiso total. Con privilegios de root, el atacante puede modificar o eliminar cualquier archivo del sistema, incluyendo binarios del sistema operativo, páginas del sitio web, registros de auditoría o la configuración de los propios servicios (FTP, SMB, SSH), pudiendo incluso instalar mecanismos de persistencia adicionales o borrar evidencia de su actividad.</td>
+              </tr>
+              <tr>
+                <td><strong>Disponibilidad</strong></td>
+                <td>Impacto alto (potencial). Si bien no se ejecutaron pruebas de denegación de servicio por estar fuera del alcance definido, el nivel de acceso obtenido (root) permite detener servicios críticos, eliminar datos de los recursos compartidos o incluso inutilizar por completo el servidor, afectando la continuidad operativa de la organización.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="body-copy" style="margin-top: 1rem;">
+          En conjunto, el sistema evaluado presenta un riesgo CRÍTICO: la cadena de explotación no requirió técnicas sofisticadas ni fuerza bruta, sino la combinación de configuraciones por defecto inseguras (acceso anónimo), higiene deficiente de credenciales (archivo de texto plano expuesto) y falta de gestión de parches.
+        </p>
+      </section>
+
+      <!-- ===================== 9. RECOMENDACIONES TÉCNICAS ===================== -->
+      <section class="section" id="recomendaciones">
+        <div class="section-head">
+          <span class="section-index">09</span>
+          <h2>Recomendaciones Técnicas</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Recomendación</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Deshabilitar las sesiones nulas (NULL session) en Samba y revisar los permisos efectivos de todos los recursos compartidos, eliminando la escritura anónima sobre smbdata.</td></tr>
+              <tr><td>2</td><td>Forzar la firma de mensajes SMB (server signing = mandatory) para mitigar ataques de tipo SMB relay.</td></tr>
+              <tr><td>3</td><td>Deshabilitar el método HTTP TRACE en la configuración de Apache (TraceEnable Off).</td></tr>
+              <tr><td>4</td><td>Eliminar cualquier archivo de notas o configuración con credenciales en texto plano del directorio público del servidor web; adoptar un gestor de secretos o variables de entorno protegidas.</td></tr>
+              <tr><td>5</td><td>Restringir los permisos de escritura de los usuarios de bajo privilegio sobre su propio directorio .ssh cuando se accede vía servicios de archivos (FTP/SMB), y monitorear cambios en archivos authorized_keys mediante herramientas de integridad de archivos (FIM).</td></tr>
+              <tr><td>6</td><td>Actualizar el kernel del sistema operativo a una versión soportada y parchada; implementar un proceso formal y periódico de gestión de parches (patch management).</td></tr>
+              <tr><td>7</td><td>Aplicar el principio de menor privilegio a cuentas de servicio como smbuser, limitando su alcance únicamente a los recursos estrictamente necesarios.</td></tr>
+              <tr><td>8</td><td>Implementar monitoreo y alertamiento centralizado (SIEM) para detectar patrones anómalos como sesiones anónimas exitosas, transferencias de archivos inusuales o compilaciones de binarios en rutas temporales.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 10. TABLA DE HALLAZGOS ===================== -->
+      <section class="section" id="tabla-hallazgos">
+        <div class="section-head">
+          <span class="section-index">10</span>
+          <h2>Tabla de Hallazgos</h2>
+        </div>
+        <p class="body-copy">A continuación, se consolidan todos los hallazgos identificados durante el ejercicio:</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>Vulnerabilidad</th><th>Sev.</th><th>Evidencia</th><th>Impacto</th><th>Recomendación</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>H-01</td>
+                <td>FTP anónimo habilitado con directorio pub de escritura pública (777)</td>
+                <td>Alta</td>
+                <td>nmap ftp-anon; sesión FTP anónima exitosa (230 Login successful)</td>
+                <td>Escritura de archivos sin autenticación; usado como vector de entrada</td>
+                <td>Deshabilitar login anónimo o restringir a solo lectura</td>
+              </tr>
+              <tr>
+                <td>H-02</td>
+                <td>FTP anónimo habilitado en servicio secundario ProFTPD (puerto 2121)</td>
+                <td>Media</td>
+                <td>nmap ftp-anon puerto 2121</td>
+                <td>Vector adicional de acceso no autenticado</td>
+                <td>Deshabilitar o remover el servicio FTP redundante</td>
+              </tr>
+              <tr>
+                <td>H-03</td>
+                <td>Firma de mensajes SMB deshabilitada</td>
+                <td>Media</td>
+                <td>nmap smb-security-mode: message_signing disabled</td>
+                <td>Expuesto a ataques SMB relay</td>
+                <td>Forzar firma de mensajes SMB obligatoria</td>
+              </tr>
+              <tr>
+                <td>H-04</td>
+                <td>Método HTTP TRACE habilitado en Apache</td>
+                <td>Baja</td>
+                <td>nmap http-methods: Potentially risky methods: TRACE</td>
+                <td>Riesgo de Cross-Site Tracing (XST)</td>
+                <td>Deshabilitar TRACE (TraceEnable Off)</td>
+              </tr>
+              <tr>
+                <td>H-05</td>
+                <td>Sesión nula SMB con recurso compartido smbdata en lectura/escritura</td>
+                <td>Alta</td>
+                <td>smbmap: smbdata READ, WRITE (NULL Session)</td>
+                <td>Acceso no autenticado a archivos compartidos, posible pivote</td>
+                <td>Deshabilitar sesiones nulas y revisar ACL de recursos compartidos</td>
+              </tr>
+              <tr>
+                <td>H-06</td>
+                <td>Credenciales en texto plano expuestas vía HTTP (/readme.txt)</td>
+                <td>Crítica</td>
+                <td>Contenido del archivo: "My Password is rootroot1"</td>
+                <td>Compromiso total de confidencialidad; autenticación como smbuser</td>
+                <td>Eliminar archivos de credenciales del webroot; gestión segura de secretos</td>
+              </tr>
+              <tr>
+                <td>H-07</td>
+                <td>Acceso inicial mediante inyección de llave SSH (authorized_keys)</td>
+                <td>Alta</td>
+                <td>Transferencia FTP exitosa + login SSH sin contraseña</td>
+                <td>Acceso remoto persistente al usuario smbuser</td>
+                <td>Restringir escritura sobre ~/.ssh vía FTP/SMB; monitorear authorized_keys</td>
+              </tr>
+              <tr>
+                <td>H-08</td>
+                <td>Kernel vulnerable a DirtyCOW (CVE-2016-5195)</td>
+                <td>Crítica</td>
+                <td>uname -a: 3.10.0-229.el7; exploit 40616.c ejecutado con éxito; proof.txt obtenido como root</td>
+                <td>Escalada de privilegios a root; compromiso total del sistema</td>
+                <td>Actualizar el kernel a una versión parchada; gestión formal de parches</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="body-copy" style="margin-top: 1rem;"><em>Distribución de severidad: 2 Críticas · 3 Altas · 2 Medias · 1 Baja.</em></p>
+      </section>
+
+      <!-- ===================== 11. CONCLUSIÓN ===================== -->
+      <section class="section" id="conclusion">
+        <div class="section-head">
+          <span class="section-index">11</span>
+          <h2>Conclusión</h2>
+        </div>
+        <p class="body-copy">
+          El ejercicio demostró que la máquina "My File Server: 1" presenta una superficie de ataque amplia y múltiples fallas de configuración de baja sofisticación (acceso anónimo, credenciales en texto plano) que, combinadas con la falta de actualización del kernel, permiten un compromiso completo del sistema en cuestión de horas y sin necesidad de herramientas avanzadas de explotación. Esto subraya la importancia de aplicar controles básicos de higiene de seguridad —deshabilitar accesos anónimos, no almacenar credenciales en texto plano y mantener los sistemas parchados— como primera línea de defensa, incluso antes de considerar controles más sofisticados.
+        </p>
+        <p class="body-copy">
+          Se recomienda a la organización priorizar las acciones descritas en la sección 9, comenzando por la actualización del kernel y la eliminación de las credenciales expuestas, dado que ambos hallazgos están directamente vinculados con los puntos de mayor criticidad de la cadena de ataque documentada.
+        </p>
+      </section>
+
+      <!-- ===================== VISUALIZADOR DE DIAPOSITIVAS (PPTX EMBEBIDO) ===================== -->
+      <section class="section" id="visualizador-diapositivas">
+        <div class="section-head">
+          <span class="section-index">12</span>
+          <h2>Presentación Ejecutiva (PowerPoint)</h2>
+        </div>
+        <p class="body-copy">
+          A continuación se incluye la presentación interactiva en diapositivas que detalla los hallazgos y la cadena de ataque:
+        </p>
+        <div class="pdf-viewer-container" style="margin-top: 1.5rem; border: 1px solid var(--border-color, #333); border-radius: 8px; overflow: hidden; background: #1e1e1e;">
+          <!-- Reemplaza el src con tu código embed de OneDrive / Google Slides -->
+          <iframe src="https://onedrive.live.com/embed?resid=TU_RESID_AQUI&amp;authkey=TU_AUTHKEY_AQUI&amp;em=2" width="100%" height="500px" style="border: none;" allowfullscreen>
+            <p>Tu navegador no soporta la inserción de diapositivas. Puedes descargar el archivo desde el botón de la barra lateral.</p>
+          </iframe>
+        </div>
+      </section>
+
+      <!-- ===================== REPORTE TÉCNICO EN PDF ===================== -->
+      <section class="section" id="visualizador-pdf">
+        <div class="section-head">
+          <span class="section-index">13</span>
+          <h2>Reporte Técnico en PDF</h2>
+        </div>
+        <p class="body-copy">
+          Documento técnico completo embebido para su consulta interactiva:
+        </p>
+        <div class="pdf-viewer-container" style="margin-top: 1.5rem; border: 1px solid var(--border-color, #333); border-radius: 8px; overflow: hidden; background: #1e1e1e;">
+          <iframe src="/portafolioCNOIV/actividades/descargas/act13_Red_Team_Report.pdf" width="100%" height="700px" style="border: none;">
+            <p>Tu navegador no soporta la visualización de PDFs. Puedes descargar el archivo desde el botón de la barra lateral.</p>
+          </iframe>
+        </div>
+      </section>
+
+      <!-- ===================== REFERENCIAS ===================== -->
+      <section class="section" id="referencias">
+        <div class="section-head">
+          <span class="section-index">14</span>
+          <h2>Referencias</h2>
+        </div>
+        <p class="body-copy" style="font-size: 0.95rem; line-height: 1.5;">
+          VulnHub. (2020). <em>My File Server: 1</em>. Recuperado de <a href="https://download.vulnhub.com/myfileserver/My_file_server_1.ova" target="_blank" rel="noopener">https://download.vulnhub.com/myfileserver/My_file_server_1.ova</a>.<br>
+          Penetration Testing Execution Standard (PTES). (s. f.). <em>Estándar de documentación de pentesting</em>.
+        </p>
+      </section>
+
+    </div>
+
+    <!-- ===================== SIDEBAR FIJA: DATOS + DESCARGAS ===================== -->
+    <aside class="activity-sidebar">
+      <div class="sidebar-card">
+        <h3>Datos de la actividad</h3>
+        <dl>
+          <div class="sidebar-meta-item">
+            <dt>Materia</dt>
+            <dd>CNO IV Seguridad Informática</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Entorno</dt>
+            <dd>VulnHub (My File Server 1)</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Resultado</dt>
+            <dd>Compromiso Total (Root)</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="sidebar-card sidebar-download" style="margin-top: 1rem;">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>Reporte PDF</h3>
+        <p>Descarga el reporte completo de Red Team en formato PDF.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/act13_Red_Team_Report.pdf" download>
+          Descargar PDF
+        </a>
+      </div>
+
+      <div class="sidebar-card sidebar-download" style="margin-top: 1rem;">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>Presentación PPTX</h3>
+        <p>Descarga la presentación ejecutiva de la exposición.</p>
+        <a class="btn btn-secondary btn-block" href="/portafolioCNOIV/actividades/descargas/Actividad13_Presentacion.pptx" download>
+          Descargar Diapositivas
+        </a>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
+      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p>184937@upslp.edu.mx</p>
+    </div>
+    <div class="footer-col">
+      <h4>Redes académicas</h4>
+      <ul>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Estado del sitio</h4>
+      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>
