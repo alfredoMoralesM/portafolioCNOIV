@@ -11,10 +11,140 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="../../css/styles.css">
+<style id="responsive-sidebar-fix">
+/* Ajuste responsive para el sidebar de la Actividad 13 */
+.activity-layout {
+  min-width: 0;
+}
+
+.activity-main {
+  min-width: 0;
+}
+
+.activity-sidebar {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.activity-sidebar .sidebar-card {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.activity-sidebar .btn-block {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: normal;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .activity-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 850px) {
+  .activity-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .activity-main,
+  .activity-sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .activity-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .activity-sidebar .sidebar-card {
+    margin-top: 0 !important;
+    height: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .activity-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-sidebar .sidebar-card {
+    width: 100%;
+  }
+
+  .activity-sidebar .sidebar-download {
+    margin-top: 0 !important;
+  }
+}
+</style>
+
 
 <link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
 <link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
 <link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+
+<style id="presentation-section-fix">
+/* ===== SECCIÓN 12: PRESENTACIÓN PDF + DESCARGA PPTX ===== */
+.presentation-pdf-container {
+    width: 100%;
+    max-width: 100%;
+    height: 700px;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border-color, #333);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1e1e1e;
+    box-sizing: border-box;
+}
+
+.presentation-pdf-container iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.presentation-download {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+
+.presentation-download .btn {
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    white-space: normal;
+}
+
+@media (max-width: 850px) {
+    .presentation-pdf-container {
+        height: 600px;
+    }
+}
+
+@media (max-width: 600px) {
+    .presentation-pdf-container {
+        height: 500px;
+    }
+
+    .presentation-download .btn {
+        width: 100%;
+    }
+}
+</style>
+
 </head>
 <body>
 
@@ -617,22 +747,42 @@
         </p>
       </section>
 
-      <!-- ===================== VISUALIZADOR DE DIAPOSITIVAS (PPTX EMBEBIDO) ===================== -->
+
+      <!-- ===================== 12. PRESENTACIÓN EJECUTIVA ===================== -->
       <section class="section" id="visualizador-diapositivas">
         <div class="section-head">
           <span class="section-index">12</span>
-          <h2>Presentación Ejecutiva (PowerPoint)</h2>
+          <h2>Presentación Ejecutiva</h2>
         </div>
+
         <p class="body-copy">
-          A continuación se incluye la presentación interactiva en diapositivas que detalla los hallazgos y la cadena de ataque:
+          A continuación se presenta la versión en PDF de las diapositivas utilizadas
+          durante la exposición. También puedes descargar directamente la presentación
+          en formato PowerPoint.
         </p>
-        <div class="pdf-viewer-container" style="margin-top: 1.5rem; border: 1px solid var(--border-color, #333); border-radius: 8px; overflow: hidden; background: #1e1e1e;">
-          <!-- Reemplaza el src con tu código embed de OneDrive / Google Slides -->
-          <iframe src="https://onedrive.live.com/embed?resid=TU_RESID_AQUI&amp;authkey=TU_AUTHKEY_AQUI&amp;em=2" width="100%" height="500px" style="border: none;" allowfullscreen>
-            <p>Tu navegador no soporta la inserción de diapositivas. Puedes descargar el archivo desde el botón de la barra lateral.</p>
+
+        <div class="presentation-pdf-container">
+          <iframe
+            src="/portafolioCNOIV/actividades/descargas/act13_pentesting.pdf"
+            title="Presentación ejecutiva en PDF"
+            loading="lazy">
+            <p>
+              Tu navegador no soporta la visualización de PDFs.
+              Puedes descargar la presentación en formato PowerPoint.
+            </p>
           </iframe>
         </div>
+
+        <div class="presentation-download">
+          <a
+            class="btn btn-primary"
+            href="/portafolioCNOIV/actividades/descargas/act13_pentesting.pptx"
+            download>
+            ⬇ Descargar presentación PowerPoint (.pptx)
+          </a>
+        </div>
       </section>
+
 
       <!-- ===================== REPORTE TÉCNICO EN PDF ===================== -->
       <section class="section" id="visualizador-pdf">
@@ -684,21 +834,12 @@
         </dl>
       </div>
 
-      <div class="sidebar-card sidebar-download" style="margin-top: 1rem;">
+      <div class="sidebar-card sidebar-download">
         <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
         <h3>Reporte PDF</h3>
         <p>Descarga el reporte completo de Red Team en formato PDF.</p>
         <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/act13_Red_Team_Report.pdf" download>
           Descargar PDF
-        </a>
-      </div>
-
-      <div class="sidebar-card sidebar-download" style="margin-top: 1rem;">
-        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
-        <h3>Presentación PPTX</h3>
-        <p>Descarga la presentación ejecutiva de la exposición.</p>
-        <a class="btn btn-secondary btn-block" href="/portafolioCNOIV/actividades/descargas/Actividad13_Presentacion.pptx" download>
-          Descargar Diapositivas
         </a>
       </div>
     </aside>
