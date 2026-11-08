@@ -1,0 +1,50 @@
+﻿Created By AccessData® FTK® Imager 4.3.1.1 
+
+Case Information: 
+Acquired using: ADI4.3.1.1
+Case Number: InfoCrim-01_21.11.2023
+Evidence Number: 00 (Original Adq)
+Unique description: CNO IV - análisis de incidente de fraude bancario
+Examiner: Morales Meza Christian Alfredo
+Notes: Adquisición realizada en LIF de la UPSLP
+
+--------------------------------------------------------------
+
+Information for C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo:
+
+Physical Evidentiary Item (Source) Information:
+[Device Info]
+ Source Type: Physical
+[Drive Geometry]
+ Cylinders: 977
+ Tracks per Cylinder: 255
+ Sectors per Track: 63
+ Bytes per Sector: 512
+ Sector Count: 15,702,912
+[Physical Drive Information]
+ Drive Model: ADATA USB Flash Drive USB Device
+ Drive Serial Number: AA00000000000485
+ Drive Interface Type: USB
+ Removable drive: True
+ Source data size: 7667 MB
+ Sector count:    15702912
+[Computed Hashes]
+ MD5 checksum:    6073f3259145ee56acc2a9e5a02511eb
+ SHA1 checksum:   582454b27cc11d9d39a415769b02bf1749e51a40
+
+Image Information:
+ Acquisition started:   Sat Nov  7 21:34:57 2026
+ Acquisition finished:  Sat Nov  7 21:42:23 2026
+ Segment list:
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.001
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.002
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.003
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.004
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.005
+  C:\Users\alfre\OneDrive\Escritorio\InfoCrim13\infocrim_MoralesMezaChristianAlfredo.006
+
+Image Verification Results:
+ Verification started:  Sat Nov  7 21:42:24 2026
+ Verification finished: Sat Nov  7 21:42:54 2026
+ MD5 checksum:    6073f3259145ee56acc2a9e5a02511eb : verified
+ SHA1 checksum:   582454b27cc11d9d39a415769b02bf1749e51a40 : verified

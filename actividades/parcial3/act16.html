@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad 16 - La verdad en los bits: adquisición forense con FTK Imager</title>
+<meta name="description" content="Actividad 16: adquisición forense de una memoria USB con FTK Imager, creación de una imagen Raw (dd) y verificación de integridad con hashes MD5 y SHA-1.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+
+<link rel="icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="shortcut icon" type="image/png" href="/portafolioCNOIV/hacker.png">
+<link rel="apple-touch-icon" href="/portafolioCNOIV/hacker.png">
+
+<style>
+  /* Estilos propios de la Actividad 16 (evidencias, respuestas y tablas) */
+  .qa-item { margin-bottom: 1.75rem; }
+  .qa-answer {
+    display: inline-block;
+    margin: .4rem 0 .2rem;
+    padding: .4rem .75rem;
+    background: rgba(46, 160, 67, .15);
+    border-left: 4px solid #2ea043;
+    border-radius: 0 6px 6px 0;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .qa-answer::before {
+    content: "Respuesta: ";
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #2ea043;
+    margin-right: .35rem;
+  }
+  .qa-answer--plain::before { content: none; }
+  .qa-answer--block { display: block; font-weight: 500; }
+  .qa-answer--block strong { font-weight: 600; }
+  .step-item { margin-bottom: 1.75rem; }
+  .evidence { margin: .6rem 0 0; }
+  .evidence img {
+    display: block; max-width: 100%; height: auto;
+    border: 1px solid rgba(128,128,128,.35); border-radius: 6px;
+  }
+  .evidence figcaption { margin-top: .35rem; font-size: .8rem; opacity: .75; }
+  .data-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
+  .data-table th, .data-table td {
+    text-align: left; padding: .55rem .75rem;
+    border-bottom: 1px solid rgba(128,128,128,.3);
+  }
+  .data-table td { font-family: "IBM Plex Mono", monospace; word-break: break-all; }
+  .source-note { font-size: .85rem; opacity: .8; margin-top: .4rem; }
+  .objective-list { margin: .5rem 0 0 1.2rem; }
+  .objective-list li { margin-bottom: .35rem; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="inicio">
+  <div class="header-bar">
+    <div class="brand">
+      <span class="brand-icon-frame">
+        <img src="/portafolioCNOIV/hacker.png" alt="" width="30" height="30">
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">Christian Alfredo Morales Meza</span>
+        <span class="brand-alias">// Alfred</span>
+        <span class="brand-course">Fundamentos de Ciberseguridad</span>
+      </div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
+      <ul>
+        <li><a href="/portafolioCNOIV/index.html">Inicio</a></li>
+        <li class="has-dropdown">
+          <span class="dropdown-toggle" aria-haspopup="true">
+            Actividades <span class="chev" aria-hidden="true">▾</span>
+          </span>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial1/actsP1.html">Parcial 1</a></li>
+            <li><a class="dropdown-link" href="/portafolioCNOIV/actividades/parcial2/actsP2.html">Parcial 2</a></li>
+            <li><a class="dropdown-link active" href="/portafolioCNOIV/actividades/parcial3/actsP3.html">Parcial 3</a></li>
+          </ul>
+        </li>
+        <li><a href="/portafolioCNOIV/labs/hall-of-fame.html">Hall of Fame</a></li>
+        <li><a href="/portafolioCNOIV/proyectos/proyectos.html">Proyectos</a></li>
+        <li><span class="nav-disabled" aria-disabled="true" title="Disponible próximamente">Certificados</span></li>
+        <li><a href="/portafolioCNOIV/index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="header-meta">
+    <div class="header-meta-inner">
+      <span><strong>Institución:</strong> Universidad Politécnica de San Luis Potosí</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>Periodo:</strong> Ago – Dic 2026</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span class="badge-secure"><span class="pulse" aria-hidden="true"></span> HTTPS activo</span>
+    </div>
+  </div>
+
+</header>
+
+<main id="contenido">
+
+  <!-- ===================== ENCABEZADO DE ACTIVIDAD ===================== -->
+  <section class="activity-hero">
+    <span class="section-index">Parcial 3 · Actividad 16</span>
+    <h1>La verdad en los bits: adquisición forense con FTK Imager</h1>
+    <p class="hero-lede">
+      Creación de una imagen forense bit a bit de una memoria USB en formato Raw (dd), verificada con hashes MD5 y SHA-1 y documentada con capturas y marcas de tiempo.
+    </p>
+  </section>
+
+  <div class="activity-layout">
+
+    <div class="activity-main">
+
+      <!-- ===================== INTRODUCCIÓN ===================== -->
+      <section class="section" id="introduccion">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <h2>Introducción y Descripción</h2>
+        </div>
+        <p class="body-copy">
+          El análisis forense digital se define como un conjunto de técnicas de recopilación y exhaustivo peritaje de datos, la cual sin modificación alguna podría ser utilizada para responder en algún tipo de incidente en un marco legal. Un incidente es un evento en donde las políticas de seguridad de un sistema se ven corrompidas, siendo entonces el objetivo entender la naturaleza del ataque.
+        </p>
+        <p class="body-copy">
+          Usualmente es divido en cinco fases que nos ayudan a mantener un estudio estructurado, facilitando la verificabilidad, la reproducibilidad del análisis.
+        </p>
+        <ol class="objective-list">
+          <li><strong>Adquisición.</strong> En esta fase se obtienen copias de la información que se sospecha que puede estar vinculada con algún incidente. De este modo, hay que evitar modificar cualquier tipo de dato utilizando siempre copias bit a bit con las herramientas y dispositivos adecuados.</li>
+          <li><strong>Preservación.</strong></li>
+          <li><strong>Análisis.</strong></li>
+          <li><strong>Documentación.</strong></li>
+          <li><strong>Presentación.</strong></li>
+        </ol>
+        <p class="body-copy">
+          Asegurando preservar la muestra en estado original y siempre trabajando sobre copias realizadas bit a bit, lograremos ir alineados a las metodologías estandarizadas internacionales, las cuales nos darán pie a presentar nuestros resultados con un soporte legal ante alguna Institución que lo requiera.
+        </p>
+        <p class="body-copy">
+          Como parte del equipo de especialistas en el Laboratorio de Informática Forense, se le ha solicitado la adquisición del material digital para su posterior análisis.
+        </p>
+        <p class="body-copy">
+          En esta actividad se realizó la adquisición forense de una memoria USB ADATA de 8 GB como parte del caso <strong>InfoCrim-01_21.11.2023</strong>, utilizando <strong>FTK Imager 4.3.1.1</strong>. Se creó una imagen bit a bit en formato Raw (dd), se verificó su integridad con los hashes MD5 y SHA-1 y se documentó el proceso con capturas de pantalla y marcas de tiempo. El documento presenta el paso a paso, las respuestas a las preguntas de la práctica y el análisis de los resultados.
+        </p>
+      </section>
+
+      <!-- ===================== PROCEDIMIENTO ===================== -->
+      <section class="section" id="procedimiento">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <h2>Procedimiento paso a paso</h2>
+        </div>
+        <ul class="concept-list">
+          <li class="step-item">
+            <strong>Paso 1. Obtención e instalación de FTK Imager.</strong><br>
+            Se obtuvo FTK Imager desde el archivo de instalación adjunto en el chat de Telegram de la actividad y se instaló ejecutando el instalador como administrador. La versión utilizada fue la 4.3.1.1.
+          </li>
+          <li class="step-item">
+            <strong>Paso 2. Conexión de la evidencia.</strong><br>
+            Se conectó a la computadora la memoria USB que se utiliza como evidencia. En FTK Imager se abrió el menú File y se eligió “Create Disk Image…”.
+          </li>
+          <li class="step-item">
+            <strong>Paso 3. Tipo de fuente.</strong><br>
+            En “Select Source” se seleccionó “Physical Drive”, para copiar el dispositivo completo.
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt1.png" alt="Ventana Select Source de FTK Imager 4.3.1.1" loading="lazy">
+              <figcaption>Captura 1. Ventana "Select Source" de FTK Imager 4.3.1.1 con la opción "Physical Drive" seleccionada, para crear la imagen del dispositivo físico completo (y no solo de una partición o carpeta). Se continúa con "Siguiente".</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 4. Selección del dispositivo.</strong><br>
+            En el selector de unidades se eligió la memoria USB (\.\PHYSICALDRIVE1 - ADATA USB Flash Drive USB Device) y se hizo clic en “Finish”.
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt2.png" alt="Ventana Select Drive" loading="lazy">
+              <figcaption>Captura 2. Ventana "Select Drive", donde se elige la evidencia a copiar: \.\PHYSICALDRIVE1 - ADATA USB Flash Drive USB Device [8GB USB], que corresponde a la memoria USB conectada como evidencia. Después de confirmar la selección se hace clic en "Finish".</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 5. Formato de la imagen.</strong><br>
+            Con “Add…” se abrió la selección de formato y se eligió Raw (dd), un formato crudo de lectura universal.
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt3.png" alt="Ventana Select Image Type" loading="lazy">
+              <figcaption>Captura 3. Ventana "Select Image Type": se elige el formato Raw (dd), una copia bit a bit sin compresión y de lectura universal, como indica la práctica. Las opciones SMART, E01 y AFF no se utilizaron.</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 6. Datos del caso.</strong><br>
+            En “Evidence Item Information” se capturaron los datos solicitados: número de caso, número de evidencia, descripción, examinador y notas.
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt4.png" alt="Ventana Evidence Item Information" loading="lazy">
+              <figcaption>Captura 4. Ventana "Evidence Item Information" con los datos del caso: Case Number InfoCrim-01_21.11.2023; Evidence Number 00 (Original Adq); Unique Description "CNO IV - análisis de incidente de fraude bancario"; Examiner "Morales Meza Christian Alfredo"; Notes "Adquisición realizada en LIF de la UPSLP".</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 7. Destino y nombre de la imagen.</strong><br>
+            Se creó la carpeta <code>InfoCrim13</code> en el Escritorio, se seleccionó como destino y se escribió el nombre del archivo, sin extensión, con el formato <code>infocrim_ApAmN</code> (apellido paterno, apellido materno y nombre).
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt5.png" alt="Ventana Select Image Destination" loading="lazy">
+              <figcaption>Captura 5. Ventana "Select Image Destination": carpeta de destino InfoCrim13 (en el Escritorio) y nombre del archivo de evidencia sin extensión, infocrim_MoralesMezaChristianAlfredo (formato infocrim_ApAmN). El tamaño de fragmento es de 1500 MB, por lo que la imagen se divide en varios segmentos.</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 8. Inicio de la adquisición.</strong><br>
+            En la ventana “Create Image” se confirmó el origen y el destino, se dejó activada la verificación posterior de la imagen y se hizo clic en “Start”. La hora de inicio fue 21:34.
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt6.png" alt="Ventana Create Image" loading="lazy">
+              <figcaption>Captura 6. Ventana "Create Image" antes de iniciar: origen \.\PHYSICALDRIVE1, destino en la carpeta InfoCrim13 con el nombre de archivo configurado y la opción "Verify images after they are created" activada. Se hace clic en "Start". El reloj de Windows marca 09:34 p. m. del 07/11/2026.</figcaption>
+            </figure>
+          </li>
+          <li class="step-item">
+            <strong>Paso 9. Finalización, verificación y revisión de resultados.</strong><br>
+            FTK Imager terminó la copia (0:07:26), calculó y verificó los hashes MD5 y SHA-1 y mostró el resumen del proceso. Después se revisaron los archivos generados en la carpeta InfoCrim13 y el archivo de texto con el registro de la adquisición. Las capturas correspondientes se presentan junto a las respuestas siguientes.
+          </li>
+        </ul>
+      </section>
+
+      <!-- ===================== PREGUNTAS Y RESPUESTAS ===================== -->
+      <section class="section" id="respuestas">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <h2>Preguntas y respuestas</h2>
+        </div>
+        <ul class="concept-list">
+
+          <li class="qa-item">
+            <strong>1. Proporcione las marcas de tiempo del proceso de adquisición de material digital.</strong><br>
+            <p class="body-copy">Hora de inicio de adquisición en LIF (desde la selección del item hasta hacer clic en Start):</p>
+            <span class="qa-answer qa-answer--block">Sat Nov 7 21:34:57 2026</span>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt7.png" alt="Captura de la hora de inicio" loading="lazy">
+              <figcaption>Captura 7. Misma captura previa a "Start" como evidencia de la hora de inicio: 09:34 p. m. del 07/11/2026 en el reloj de Windows, que coincide con la hora de inicio registrada por FTK Imager (21:34:57).</figcaption>
+            </figure>
+            
+            <p class="body-copy">Hora de término de adquisición:</p>
+            <span class="qa-answer qa-answer--block">Sat Nov 7 21:42:23 2026</span>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt8.png" alt="Ventana Creating Image" loading="lazy">
+              <figcaption>Captura 8. Ventana "Creating Image..." al terminar: estado "Image created successfully", barra de progreso completa y tiempo transcurrido (Elapsed time) de 0:07:26. El reloj de Windows marca 09:43 p. m. del 07/11/2026.</figcaption>
+            </figure>
+            
+            <p class="body-copy">Tiempo transcurrido:</p>
+            <span class="qa-answer qa-answer--block">0:07:26</span>
+          </li>
+
+          <li class="qa-item">
+            <strong>2. ¿Qué tipo de formato se refiere el Raw (dd)?</strong><br>
+            <span class="qa-answer qa-answer--block">El formato DD (también llamado raw, img o bin) es el formato de imagen forense más simple y universal. Consiste en una copia bit a bit del dispositivo de origen, sin ningún tipo de procesamiento, compresión o metadatos añadidos. El archivo resultante es una réplica exacta del disco original, byte por byte.</span>
+            <p class="body-copy">
+              El nombre proviene del comando Unix <code>dd</code> (data duplicator o dataset definition), una herramienta de bajo nivel presente en todos los sistemas Unix/Linux desde los años 70. Aunque el comando original no fue diseñado específicamente para forense, su capacidad de copiar datos a nivel de bloques lo convirtió en la herramienta fundamental para adquisición forense.
+            </p>
+            <p class="source-note"><em>Fuente:</em> <a href="https://digitalperito.es/glosario/formato-dd/" target="_blank" rel="noopener">https://digitalperito.es/glosario/formato-dd/</a></p>
+          </li>
+
+          <li class="qa-item">
+            <strong>3. ¿Qué tipo de formato se refiere el E01?</strong><br>
+            <span class="qa-answer qa-answer--block">El archivo E01 (Formato de archivo de imagen Encase) guarda una copia de seguridad de diversos tipos de evidencia digital adquirida, incluyendo imágenes de disco, almacenamiento de archivos lógicos, etc. Cuando un investigador (o un experto forense) utiliza Encase para crear una copia de seguridad de los datos disponibles en el disco duro, se produce un flujo de bits físico de los datos. Este procedimiento se conoce como creación de imágenes de disco. La teoría básica detrás de la relación entre Encase y el formato de archivo de imagen E01 es que, al crear imágenes de los datos disponibles en el disco duro, Encase divide los datos completos en bloques de datos. Debido a esta división de datos en bloques, se crean múltiples archivos de datos que almacenan información crucial del disco duro. La característica más peculiar de estos archivos es que el nombre de los archivos permanece igual (el que les dio el usuario), mientras que la extensión del archivo cambia.</span>
+            <p class="body-copy">
+              Por ejemplo, si el primer fragmento se crea con el nombre "S01.E01", los siguientes fragmentos se denominarán "S01.E02", seguidos de "S01.E03", "S01.E04", "S01.E05", y así sucesivamente.
+            </p>
+            <p class="source-note"><em>Fuente:</em> <a href="https://www.forensicsware.com/blog/e01-file-format/" target="_blank" rel="noopener">https://www.forensicsware.com/blog/e01-file-format/</a></p>
+          </li>
+
+          <li class="qa-item">
+            <strong>4. ¿Cuál es la diferencia entre un formato SMART y un formato E01?</strong><br>
+            <span class="qa-answer qa-answer--block">La diferencia principal radica en su origen, popularidad y nivel de soporte actual dentro de la informática forense, a pesar de que ambos pertenecen a la misma familia de formatos contenedores de evidencia digital (basados en el estándar Expert Witness Format o EWF).</span>
+            <p class="body-copy">
+              El formato E01 es el estándar de la industria global actual desarrollado por EnCase, mientras que SMART no es un formato de EnCase: procede de la herramienta forense SMART de ASR Data, y libewf lo soporta por compatibilidad. Aparece sobre todo en material antiguo. Es un formato pionero, pero hoy en día obsoleto y en desuso.
+            </p>
+            <p class="source-note"><em>Fuente:</em> <a href="https://digitalperito.es/glosario/formato-e01/" target="_blank" rel="noopener">https://digitalperito.es/glosario/formato-e01/</a></p>
+          </li>
+
+          <li class="qa-item">
+            <strong>5. Al finalizar todo este procedimiento se presentan algunos resultados finales, presente los resultados en formato de texto y captura de pantalla.</strong>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt9.png" alt="Ventana Drive/Image Verify Results" loading="lazy">
+              <figcaption>Captura 9. Ventana de resultados de la verificación (Drive/Image Verify Results): Sector count 15702912; en MD5 y SHA-1 el hash calculado (Computed hash) coincide con el del reporte (Report Hash) y el resultado es "Match"; además, "No bad blocks found in image".</figcaption>
+            </figure>
+            <p class="body-copy">
+              <strong>Sectores copiados.</strong> 15702912<br>
+              <strong>Hash MD5.</strong> 6073f3259145ee56acc2a9e5a02511eb<br>
+              <strong>Hash SHA-1.</strong> 582454b27cc11d9d39a415769b02bf1749e51a40
+            </p>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt10.png" alt="Extracto del archivo de texto generado" loading="lazy">
+              <figcaption>Captura 10. Extracto del archivo de texto generado, sección Physical Drive Information: modelo ADATA USB Flash Drive USB Device, número de serie AA00000000000485, interfaz USB, unidad extraíble, tamaño de origen de 7667 MB, 15702912 sectores y los hashes MD5 y SHA-1 calculados.</figcaption>
+            </figure>
+          </li>
+
+          <li class="qa-item">
+            <strong>6. ¿Cuántos archivos fueron generados?</strong><br>
+            <span class="qa-answer qa-answer--block">7 archivos generados: 6 archivos con extensión .001.006 y 1 archivo con extensión .txt</span>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt11.png" alt="Archivos generados en la carpeta InfoCrim13" loading="lazy">
+              <figcaption>Captura 11. Carpeta InfoCrim 13 con los 7 archivos generados: los segmentos .001 a .006 de la imagen Raw (los cinco primeros de 1,536,000 KB, es decir 1500 MB, y el último de 171,456 KB) y el archivo de texto (.txt) de 2 KB con el registro del proceso.</figcaption>
+            </figure>
+          </li>
+
+          <li class="qa-item">
+            <strong>7. En el mismo directorio o unidad donde se ha creado la imagen forense, se encontrará un archivo de texto con el mismo nombre de la imagen forese creada (formato txt), en el cual reside toda la información detallada del proceso realizado.</strong><br>
+            <p class="body-copy">
+              <a class="btn btn-primary" href="/portafolioCNOIV/actividades/descargas/infocrim_MoralesMezaChristianAlfredo.001.txt" download>⭳ Descargar infocrim_MoralesMezaChristianAlfredo.txt</a>
+            </p>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt12.png" alt="Contenido del archivo de texto, parte 1" loading="lazy">
+              <figcaption>Captura 12. Contenido del archivo .txt (parte 1): versión del programa (FTK Imager 4.3.1.1), datos del caso, examinador, notas, ruta de la evidencia y geometría del dispositivo.</figcaption>
+            </figure>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt13.png" alt="Contenido del archivo de texto, parte 2" loading="lazy">
+              <figcaption>Captura 13. Contenido del archivo .txt (parte 2): Physical Drive Information donde aparece la información de los sectores del dispositivo USB y los hashes generados.</figcaption>
+            </figure>
+            <figure class="evidence">
+              <img src="/portafolioCNOIV/actividades/images/capt14.png" alt="Contenido del archivo de texto, parte 3" loading="lazy">
+              <figcaption>Captura 14. Contenido del archivo .txt (parte 3): Image Information con la hora de inicio y de término de la adquisición (sáb 7 nov 2026, 21:34:57 y 21:42:23), la lista de segmentos .001 a .006 y los resultados de la verificación (inicio 21:42:24, fin 21:42:54), con MD5 y SHA-1 en estado "verified".</figcaption>
+            </figure>
+          </li>
+
+        </ul>
+      </section>
+
+      <!-- ===================== ANÁLISIS ===================== -->
+      <section class="section" id="analisis">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <h2>Análisis de los resultados</h2>
+        </div>
+        <p class="body-copy">
+          <strong>Archivos generados.</strong> Se generaron 7 archivos en la carpeta InfoCrim13: seis segmentos de la imagen Raw (dd), infocrim_MoralesMezaChristianAlfredo.001 a .006, y el archivo de texto (.txt) con el registro del proceso. Los segmentos aparecen porque se configuró una fragmentación de 1500 MB: los cinco primeros miden 1500 MB y el sexto es el remanente (171,456 KB), de modo que en conjunto suman los 7667 MB de la USB.
+        </p>
+        <p class="body-copy">
+          <strong>Hashes e integridad.</strong> MD5: 6073f3259145ee56acc2a9e5a02511eb. SHA-1: 582454b27cc11d9d39a415769b02bf1749e51a40. El hash calculado coincidió con el del reporte en ambos algoritmos (Match) y el registro marca los dos como "verified". Esto demuestra que la imagen es una copia exacta de la USB y que no se alteró después de crearse; además, no se encontraron bloques dañados. Usar dos algoritmos distintos refuerza la verificación.
+        </p>
+        <p class="body-copy">
+          <strong>Sectores y tamaño.</strong> 15,702,912 sectores x 512 bytes = 8,040,402,944 bytes (≈ 8.04 GB, o 7667 MB en unidades binarias, como indica el registro), lo que es consistente con una memoria USB de 8 GB.
+        </p>
+        <p class="body-copy">
+          <strong>Tiempos.</strong> La adquisición inició a las 21:34:57 y terminó a las 21:42:23 (0:07:26), a una velocidad aproximada de 17 MB/s (7667 MB en 446 s). La verificación tomó 30 s adicionales (21:42:24 a 21:42:54).
+        </p>
+      </section>
+
+    </div>
+
+    <!-- ===================== SIDEBAR FIJA ===================== -->
+    <aside class="activity-sidebar">
+      <div class="sidebar-card">
+        <h3>Datos de la actividad</h3>
+        <dl>
+          <div class="sidebar-meta-item">
+            <dt>Fecha</dt>
+            <dd>08/11/2026</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Materia</dt>
+            <dd>CNO IV. Seguridad Informática</dd>
+          </div>
+          <div class="sidebar-meta-item">
+            <dt>Herramienta</dt>
+            <dd>FTK Imager (adquisición Raw/dd)</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="sidebar-card sidebar-download">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>PDF de la actividad</h3>
+        <p>Documento en PDF con el procedimiento, las capturas y el análisis de la adquisición forense.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/MoralesMezaChristianAlfredo-ACT16.pdf" download>
+          Descargar PDF
+        </a>
+      </div>
+
+      <div class="sidebar-card sidebar-download">
+        <span class="sidebar-download-icon" aria-hidden="true">⭳</span>
+        <h3>Registro (.txt)</h3>
+        <p>Archivo de texto generado por FTK Imager con los datos del caso, las horas, los segmentos y los hashes de la imagen forense.</p>
+        <a class="btn btn-primary btn-block" href="/portafolioCNOIV/actividades/descargas/infocrim_MoralesMezaChristianAlfredo.001.txt" download>
+          Descargar .txt
+        </a>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Fundamentos de Ciberseguridad</h4>
+      <p class="footer-copy">© <span id="year"></span> — Todos los derechos reservados.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p>184937@upslp.edu.mx</p>
+    </div>
+    <div class="footer-col">
+      <h4>Redes académicas</h4>
+      <ul>
+        <li><a href="https://github.com/alfredoMoralesM" target="_blank" rel="noopener">GitHub</a><a>   -   </a>
+            <a href="https://linkedin.com/in/alfredo-morales-0225a228a/" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Estado del sitio</h4>
+      <p class="badge-secure"><span class="pulse" aria-hidden="true"></span> Conexión segura (HTTPS)</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>
